@@ -2,7 +2,6 @@ const express = require('express')
 const { config } = require('./config/index.js')
 
 const app = express()
-var path = require('path');
 
 app.get('/:coupon', function(req, res) {
     const { coupon } = req.params
