@@ -5,35 +5,37 @@ const crypto = require('crypto');
 const debug = require('debug')('app:scripts:api-keys');
 const MongoLib = require('../lib/mongo');
 
-const adminScopes = [
+const mongodbAdminScopes = [
   'signin:auth',
   'signup:auth',
-  'read:movies',
-  'create:movies',
-  'update:movies',
-  'delete:movies',
-  'read:user-movies',
-  'create:user-movies',
-  'delete:user-movies'
+  'read:users',
+  'create:users',
+  'update:users',
+  'delete:users'
 ];
 
-const publicScopes = [
-  'signin:auth',
-  'signup:auth',
-  'read:movies',
-  'read:user-movies',
-  'create:user-movies',
-  'delete:user-movies'
-];
+const mysqlAdminScopes = [
+    'signin:auth',
+    'signup:auth',
+    'read:users',
+    'create:users',
+    'update:users',
+    'delete:users',
+    'read:codes',
+    'read:withdrawals',
+    'create:withdrawals',
+    'update:withdrawals',
+    'delete:withdrawals'
+  ];
 
 const apiKeys = [
   {
     token: generateRandomToken(),
-    scopes: adminScopes
+    scopes: mongodbAdminScopes
   },
   {
     token: generateRandomToken(),
-    scopes: publicScopes
+    scopes: mysqlAdminScopes
   }
 ];
 
