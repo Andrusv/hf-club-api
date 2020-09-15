@@ -1,18 +1,12 @@
 const express = require('express')
-const { config } = require('./config/index.js')
-
 const app = express()
 
-const MySqlLib = require('./lib/mysql')
+const { config } = require('./config/index.js')
 
-app.get('/:user_id', async function(req,res) {
-    const { user_id } = req.params
+const usersApi = require('./routes/users')
 
-    mysql= new MySqlLib()
-
-    res.json({"Response": mysql.createTable(user_id)})
-
-})
+// routes
+usersApi(app)
 
 app.patch('/:coupon', function(req, res) {
     const { coupon } = req.params
