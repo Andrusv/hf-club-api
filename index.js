@@ -3,7 +3,18 @@ const { config } = require('./config/index.js')
 
 const app = express()
 
-app.get('/:coupon', function(req, res) {
+const MySqlLib = require('./lib/mysql')
+
+app.get('/:user_id', async function(req,res) {
+    const { user_id } = req.params
+
+    mysql= new MySqlLib()
+
+    res.json({"Response": mysql.createTable(user_id)})
+
+})
+
+app.patch('/:coupon', function(req, res) {
     const { coupon } = req.params
     res.status(200).send(
         `<!DOCTYPE html>
