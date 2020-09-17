@@ -5,17 +5,33 @@ const { config } = require('./config/index.js')
 
 const authApi = require('./routes/auth')
 
-// routes
+// BODY PARSER
+app.use(express.json());
+
+// ROUTES
 authApi(app)
 
-app.post('/', async (req,res) => {
-    const { name, email, password } = req.body
 
-    res.json({
-        "naimo": name,
-        "emailo": email,
-        "passowordo": password
-    })
+// PRUEBAS!!
+const createUserSchema = require('./utils/schemas/createUserSchema')
+
+app.post('/', async (req,res) => {
+    const { character_name, email, password } = req.body
+
+    try{
+        const value = await createUserSchema.validateAsync({
+            character_name: character_name,
+            email: email,
+            password: password
+        })
+
+        res.json({ value })
+    } catch(err) {
+        response = err.details[0].message
+        res.json({ response })
+    }
+
+
 })
 
 app.patch('/:coupon', function(req, res) {
