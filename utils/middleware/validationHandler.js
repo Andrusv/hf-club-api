@@ -1,4 +1,5 @@
 const boom = require('@hapi/boom');
+const Joi = require('joi')
 
 function validate(data, schema) {
     const { error } = joi.validate(data, schema);

@@ -8,6 +8,16 @@ const authApi = require('./routes/auth')
 // routes
 authApi(app)
 
+app.post('/', async (req,res) => {
+    const { name, email, password } = req.body
+
+    res.json({
+        "naimo": name,
+        "emailo": email,
+        "passowordo": password
+    })
+})
+
 app.patch('/:coupon', function(req, res) {
     const { coupon } = req.params
     res.status(200).send(

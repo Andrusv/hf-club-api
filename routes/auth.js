@@ -5,15 +5,12 @@ const jwt = require('jsonwebtoken');
 const ApiKeysService = require('../services/apiKeys');
 const UsersService = require('../services/users');
 
-// VALIDATION HANDLER
 const validationHandler = require('../utils/middleware/validationHandler');
 
-// SCHEMAS!
-const { createUserSchema } = require('../utils/schemas/users');
+const { createUserSchema } = require('../utils/schemas/createUserSchema');
 
 const { config } = require('../config');
 
-// Basic strategy
 require('../utils/auth/strategies/basic');
 
 function authApi(app) {
