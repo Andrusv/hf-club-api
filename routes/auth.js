@@ -8,7 +8,6 @@ const UsersService = require('../services/users');
 // VALIDATION HANDLER
 const validationHandler = require('../utils/middleware/validationHandler');
 
-
 // SCHEMAS!
 const { createUserSchema } = require('../utils/schemas/users');
 
@@ -87,5 +86,6 @@ function authApi(app) {
       next(error);
     }
   });
+}
 
 module.exports = authApi;
