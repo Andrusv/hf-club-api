@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "set DEBUG=app:* && nodemon index.js"
+    "dev": "set DEBUG=app:* && nodemon index.js",
+    "seedUsers": "set DEBUG=app:* && node ./scripts/seeds/seedUsers.js"
   },
   "author": "",
   "license": "ISC",
