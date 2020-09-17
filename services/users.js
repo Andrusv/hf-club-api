@@ -7,7 +7,12 @@ class UsersService {
     this.mongoDB = new MongoLib();
   }
 
-  async getUser({ email }) {
+  async getUserById({ referred_id }) {
+    const user = await this.mongoDB.get(this.collection, referred_id );
+    return user;
+  }
+
+  async getUserByEmail({ email }) {
     const [user] = await this.mongoDB.getAll(this.collection, { email });
     return user;
   }

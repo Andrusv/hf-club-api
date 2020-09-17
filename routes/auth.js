@@ -73,12 +73,21 @@ function authApi(app) {
     const { body: user } = req;
 
     try {
-      const createdUserId = await usersService.createUser({ user });
+      const referrerExists = await usersService.getUserById(user)
 
-      res.status(201).json({
-        data: createdUserId,
-        message: 'user created'
-      });
+      if (referrerExists) {
+        const createdUserId = await usersService.createUser({ user });
+
+        res.status(201).json({
+            data: createdUserId,
+            message: 'user created'
+        });
+      } else {
+        res.status(404).json({
+            message: 'Usuario inexistente'
+        })
+      }
+
     } catch (error) {
       next(error);
     }
