@@ -1,16 +1,13 @@
-const boom = require('@hapi/boom');
-const Joi = require('joi')
-
-function validate(data, schema) {
-    const { error } = joi.validate(data, schema);
-    return error;
-}
+const Boom = require('@hapi/boom')
 
 function validationHandler(schema, check = 'body') {
-    return function(req, res, next) {
-      const error = validate(req[check], schema);
-  
-      error ? next(boom.badRequest(error)) : next();
+    return async function(req, res, next) {
+      try{
+        await schema.validateAsync(req[check])
+        next()
+      } catch(err) {
+        next(Boom.badRequest(err.details[0].message))
+      }
     };
 }
   

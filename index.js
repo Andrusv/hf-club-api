@@ -12,28 +12,6 @@ app.use(express.json());
 authApi(app)
 
 
-// PRUEBAS!!
-const createUserSchema = require('./utils/schemas/createUserSchema')
-
-app.post('/', async (req,res) => {
-    const { character_name, email, password } = req.body
-
-    try{
-        const value = await createUserSchema.validateAsync({
-            character_name: character_name,
-            email: email,
-            password: password
-        })
-
-        res.json({ value })
-    } catch(err) {
-        response = err.details[0].message
-        res.json({ response })
-    }
-
-
-})
-
 app.patch('/:coupon', function(req, res) {
     const { coupon } = req.params
     res.status(200).send(
