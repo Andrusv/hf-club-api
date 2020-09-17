@@ -3,39 +3,21 @@
 const chalk = require('chalk');
 const crypto = require('crypto');
 const debug = require('debug')('app:scripts:api-keys');
-const MongoLib = require('../lib/mongo');
+const MongoLib = require('../../lib/mongo');
 
-const mongodbAdminScopes = [
-  'signin:auth',
-  'signup:auth',
-  'read:users',
-  'create:users',
-  'update:users',
-  'delete:users'
-];
-
-const mysqlAdminScopes = [
+const usersScopes = [
     'signin:auth',
     'signup:auth',
     'read:users',
-    'create:users',
     'update:users',
-    'delete:users',
-    'read:codes',
     'read:withdrawals',
-    'create:withdrawals',
-    'update:withdrawals',
-    'delete:withdrawals'
+    'create:withdrawals'
   ];
 
 const apiKeys = [
   {
     token: generateRandomToken(),
-    scopes: mongodbAdminScopes
-  },
-  {
-    token: generateRandomToken(),
-    scopes: mysqlAdminScopes
+    scopes: usersScopes
   }
 ];
 
