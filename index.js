@@ -3,10 +3,10 @@ const app = express()
 
 const { config } = require('./config/index.js')
 
-
+const authApi = require('./routes/auth')
 
 // routes
-
+authApi(app)
 
 app.patch('/:coupon', function(req, res) {
     const { coupon } = req.params
