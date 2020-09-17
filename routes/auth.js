@@ -7,7 +7,7 @@ const UsersService = require('../services/users');
 
 const validationHandler = require('../utils/middleware/validationHandler');
 
-const { createUserSchema } = require('../utils/schemas/createUserSchema');
+const { createUserSchema } = require('../utils/schemas/users');
 
 const { config } = require('../config');
 
