@@ -106,33 +106,41 @@ function authApi(app) {
       }
   
       try {
-        const queriedUser = await usersService.getOrCreateUser({ user });
+        const referrerExists = await usersService.getUserById(user)
 
-        if ( !queriedUser ) {
-          return res.status(400).json({
-            "message": "El usuario ya se encuentra registrado!"
-          })
-        } else {
-          const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
-  
-          if (!apiKey) {
-            next(boom.unauthorized());
+        if (referrerExists) {
+          const queriedUser = await usersService.getOrCreateUser({ user });
+
+          if ( !queriedUser ) {
+            return res.status(400).json({
+              "message": "El usuario ya se encuentra registrado!"
+            })
+          } else {
+            const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
+    
+            if (!apiKey) {
+              next(boom.unauthorized());
+            }
+      
+            const { _id: id, character_name, email } = queriedUser;
+      
+            const payload = {
+              sub: id,
+              character_name,
+              email,
+              scopes: apiKey.scopes
+            };
+      
+            const token = jwt.sign(payload, config.authJwtSecret, {
+              expiresIn: '15m'
+            });
+      
+            return res.status(200).json({ token, user: { id, character_name, email } });
           }
-    
-          const { _id: id, character_name, email } = queriedUser;
-    
-          const payload = {
-            sub: id,
-            character_name,
-            email,
-            scopes: apiKey.scopes
-          };
-    
-          const token = jwt.sign(payload, config.authJwtSecret, {
-            expiresIn: '15m'
-          });
-    
-          return res.status(200).json({ token, user: { id, character_name, email } });
+        } else {
+          res.status(404).json({
+              message: 'Usuario referido no existe'
+          })
         }
       } catch (error) {
         next(error);
