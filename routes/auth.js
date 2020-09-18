@@ -64,37 +64,9 @@ function authApi(app) {
       }
     })(req, res, next);
   });
-
-  router.post('/sign-up', validationHandler(createUserSchema), async function(
-    req,
-    res,
-    next
-  ) {
-    const { body: user } = req;
-
-    try {
-      const referrerExists = await usersService.getUserById(user)
-
-      if (referrerExists) {
-        const createdUserId = await usersService.createUser({ user });
-
-        res.status(201).json({
-            data: createdUserId,
-            message: 'user created'
-        });
-      } else {
-        res.status(404).json({
-            message: 'Usuario inexistente'
-        })
-      }
-
-    } catch (error) {
-      next(error);
-    }
-  });
   
   router.post(
-    '/sign-provider',
+    '/sign-up',
     validationHandler(createUserSchema),
     async function(req, res, next) {
       const { body } = req;
@@ -122,6 +94,9 @@ function authApi(app) {
               next(boom.unauthorized());
             }
       
+            // AGREGAR A LISTA DE REFERIDOS
+            await usersService.addReferrer(queriedUser.referred_id,queriedUser._id)
+
             const { _id: id, character_name, email } = queriedUser;
       
             const payload = {
@@ -148,4 +123,5 @@ function authApi(app) {
     }
   );
 }
+
 module.exports = authApi;

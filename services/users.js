@@ -41,6 +41,11 @@ class UsersService {
       return await this.getUserByEmail({ email: user.email });
     }
   }
+
+  async addReferrer(referred_id, id) {
+    const data = { reffers: `${id}` }
+    return await this.mongoDB.updateArray(this.collection,referred_id,data)
+  }
 }
 
 module.exports = UsersService;
