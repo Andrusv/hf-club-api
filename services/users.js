@@ -1,10 +1,12 @@
 const MongoLib = require('../lib/mongo');
+const MySqlLib = require('../lib/mysql');
 const bcryptjs = require('bcryptjs');
 
 class UsersService {
   constructor() {
     this.collection = 'users';
     this.mongoDB = new MongoLib();
+    this.mySQL = new MySqlLib;
   }
 
   async getUserById({ referred_id }) {
@@ -45,6 +47,11 @@ class UsersService {
   async addReferrer(referred_id, id) {
     const data = { reffers: `${id}` }
     return await this.mongoDB.updateArray(this.collection,referred_id,data)
+  }
+
+  async addUser(id){
+    const columns = 'user_id'
+    return await this.mySQL.insert(this.collection,columns,`'${id}'`)
   }
 }
 

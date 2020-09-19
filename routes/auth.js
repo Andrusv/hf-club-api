@@ -97,6 +97,9 @@ function authApi(app) {
             // AGREGAR A LISTA DE REFERIDOS
             await usersService.addReferrer(queriedUser.referred_id,queriedUser._id)
 
+            // AGREGAR USUARIO A BASE DE DATOS MYSQL
+            await usersService.addUser(queriedUser._id)
+
             const { _id: id, character_name, email } = queriedUser;
       
             const payload = {
