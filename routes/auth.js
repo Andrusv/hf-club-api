@@ -44,11 +44,11 @@ function authApi(app) {
             next(boom.unauthorized());
           }
 
-          const { _id: id, name, email } = user;
+          const { _id: id, character_name, email } = user;
 
           const payload = {
             sub: id,
-            name,
+            character_name,
             email,
             scopes: apiKey.scopes
           };
@@ -57,7 +57,7 @@ function authApi(app) {
             expiresIn: '15m'
           });
 
-          return res.status(200).json({ token, user: { id, name, email } });
+          return res.status(200).json({ token, user: { id, character_name, email } });
         });
       } catch (error) {
         next(error);
@@ -65,8 +65,7 @@ function authApi(app) {
     })(req, res, next);
   });
   
-  router.post(
-    '/sign-up',
+  router.post('/sign-up',
     validationHandler(createUserSchema),
     async function(req, res, next) {
       const { body } = req;
