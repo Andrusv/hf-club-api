@@ -127,9 +127,21 @@ function authApi(app) {
 
   router.post('/forgotten-password',
     validationHandler(forgottenPasswordSchema),
-    (req,res,next) => {
-        const { ...user } = req.body
-        res.json({"corre": user.email})
+    async (req,res,next) => {
+      const { email, apiKeyToken } = req.body
+
+      try{
+        const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
+
+        if (!apiKey) {
+          next(boom.unauthorized());
+          res.status(401).json({"message": "unauthorized!"})
+        }
+
+         res.status(200).json({})
+      } catch(err) {
+        next(err)
+      }
   })
 }
 
