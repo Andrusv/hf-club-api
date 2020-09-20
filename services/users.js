@@ -44,6 +44,12 @@ class UsersService {
     }
   }
 
+  async changeUserPassword( password, id ) {
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    return await this.mongoDB.update(this.collection, id, { password: hashedPassword });
+  }
+
   async addReferrer(referred_id, id) {
     const data = { reffers: `${id}` }
     return await this.mongoDB.updateArray(this.collection,referred_id,data)

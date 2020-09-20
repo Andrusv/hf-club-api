@@ -5,12 +5,20 @@ const jwt = require('jsonwebtoken');
 const ApiKeysService = require('../services/apiKeys');
 const UsersService = require('../services/users');
 
+// VALIDATION HANDLER
 const validationHandler = require('../utils/middleware/validationHandler');
 
+// SCHEMAS
 const { createUserSchema, forgottenPasswordSchema } = require('../utils/schemas/users');
 
+// CONFIG
 const { config } = require('../config');
 
+// FUNCTIONS AND CLASS INSTANCES
+const AuthFuctions = require('../utils/functions/auth');
+const authFuctions = new AuthFuctions()
+
+// BASIC AUTH
 require('../utils/auth/strategies/basic');
 
 function authApi(app) {
@@ -128,7 +136,7 @@ function authApi(app) {
   router.post('/forgotten-password',
     validationHandler(forgottenPasswordSchema),
     async (req,res,next) => {
-      const { email, apiKeyToken } = req.body
+      const { apiKeyToken, ...user } = req.body
 
       try{
         const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
@@ -138,7 +146,28 @@ function authApi(app) {
           res.status(401).json({"message": "unauthorized!"})
         }
 
-         res.status(200).json({})
+        const { email, _id: id } = await usersService.getUserByEmail(user)
+
+        if (!email) {
+          next(boom.badRequest('Esta direccion de email no se encuentra registrada'))
+          res.status(401).json({"error": "Direccion de email no registrada"})
+        }
+
+        // CREATE NEW PASSWORD
+        const newHashedPassword = authFuctions.createHash(5)
+
+        // CHANGE USERS PASSWORD
+        const passwordChanged = await usersService.changeUserPassword(newHashedPassword,id)
+
+        delete newHashedPassword
+
+        if (!passwordChanged) {
+          next(boom.conflict('Error changing user password'))
+
+          res.status(401).json({ "error": "Error changing user password" })
+        }
+
+         res.status(200).json({"message": "Password changed succesfully"})
       } catch(err) {
         next(err)
       }
