@@ -7,7 +7,7 @@ const UsersService = require('../services/users');
 
 const validationHandler = require('../utils/middleware/validationHandler');
 
-const { createUserSchema } = require('../utils/schemas/users');
+const { createUserSchema, forgottenPasswordSchema } = require('../utils/schemas/users');
 
 const { config } = require('../config');
 
@@ -124,6 +124,13 @@ function authApi(app) {
       }
     }
   );
+
+  router.post('/forgotten-password',
+    validationHandler(forgottenPasswordSchema),
+    (req,res,next) => {
+        const { ...user } = req.body
+        res.json({"corre": user.email})
+  })
 }
 
 module.exports = authApi;
