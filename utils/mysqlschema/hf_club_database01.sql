@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users(
     balance DOUBLE(4,2) DEFAULT 0.00,
     active TINYINT(1) DEFAULT 0,
     level TINYINT(1) DEFAULT 1,
+    banned TINYINT(1) DEFAULT 0,
     donated TINYINT DEFAULT 0,
     donated_at TIMESTAMP DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
