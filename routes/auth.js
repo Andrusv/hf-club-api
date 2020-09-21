@@ -14,10 +14,6 @@ const { createUserSchema, forgottenPasswordSchema } = require('../utils/schemas/
 // CONFIG
 const { config } = require('../config');
 
-// FUNCTIONS AND CLASS INSTANCES
-const AuthFuctions = require('../utils/functions/auth');
-const authFuctions = new AuthFuctions()
-
 // BASIC AUTH
 require('../utils/auth/strategies/basic');
 
@@ -154,11 +150,12 @@ function authApi(app) {
         }
 
         // CREATE NEW PASSWORD
-        const newHashedPassword = authFuctions.createHash(5)
+        const newHashedPassword = usersService.createHash(5)
 
         // CHANGE USERS PASSWORD
         const passwordChanged = await usersService.changeUserPassword(newHashedPassword,id)
 
+        console.log(newHashedPassword)
         delete newHashedPassword
 
         if (!passwordChanged) {
@@ -166,6 +163,7 @@ function authApi(app) {
 
           res.status(401).json({ "error": "Error changing user password" })
         }
+
 
          res.status(200).json({"message": "Password changed succesfully"})
       } catch(err) {
