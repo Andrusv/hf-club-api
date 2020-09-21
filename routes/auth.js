@@ -4,6 +4,7 @@ const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
 const ApiKeysService = require('../services/apiKeys');
 const UsersService = require('../services/users');
+const MailService = require('../services/mails')
 
 // VALIDATION HANDLER
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -23,6 +24,7 @@ function authApi(app) {
 
   const apiKeysService = new ApiKeysService();
   const usersService = new UsersService();
+  const mailService = new MailService();
 
   router.post('/sign-in', async function(req, res, next) {
     const { apiKeyToken } = req.body;
@@ -142,7 +144,7 @@ function authApi(app) {
           res.status(401).json({"message": "unauthorized!"})
         }
 
-        const { email, _id: id } = await usersService.getUserByEmail(user)
+        const { email, _id: id, character_name } = await usersService.getUserByEmail(user)
 
         if (!email) {
           next(boom.badRequest('Esta direccion de email no se encuentra registrada'))
@@ -155,17 +157,25 @@ function authApi(app) {
         // CHANGE USERS PASSWORD
         const passwordChanged = await usersService.changeUserPassword(newHashedPassword,id)
 
-        console.log(newHashedPassword)
-        delete newHashedPassword
-
         if (!passwordChanged) {
           next(boom.conflict('Error changing user password'))
 
           res.status(401).json({ "error": "Error changing user password" })
         }
 
+        // EMAIL SEND
+        const subject = 'HF - Cambio de contraseña'
+        const message = `Hola ${character_name}! tu nueva contraseña momentánea es: \n\n${newHashedPassword}\n\nRecuerda que siempre que estés dentro del sistema, podrás cambiar la contraseña a tu preferencia pulsando el ícono de engranaje que se encuentra en la parte superior izquierda de la pantalla luego de iniciar sesión.`
 
-         res.status(200).json({"message": "Password changed succesfully"})
+        const emailSended = await mailService.mailUser(email,subject,message)
+
+        delete newHashedPassword
+
+        if (emailSended == []){
+          res.status(401).json({"message": "Error sending the email with new password, please contact support."})
+        } else {
+          res.status(200).json({"message": "Password changed succesfully"})
+        }
       } catch(err) {
         next(err)
       }
