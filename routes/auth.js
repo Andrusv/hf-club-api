@@ -163,19 +163,16 @@ function authApi(app) {
           res.status(401).json({ "error": "Error changing user password" })
         }
 
-        // EMAIL SEND
-        const subject = 'HF - Cambio de contraseña'
-        const message = `Hola ${character_name}! tu nueva contraseña momentánea es: \n\n${newHashedPassword}\n\nRecuerda que siempre que estés dentro del sistema, podrás cambiar la contraseña a tu preferencia pulsando el ícono de engranaje que se encuentra en la parte superior izquierda de la pantalla luego de iniciar sesión.`
-
-        const emailSended = await mailService.mailUser(email,subject,message)
+        const emailSended = await mailService.sendNewPassword(character_name,email,newHashedPassword)
 
         delete newHashedPassword
 
-        if (emailSended == []){
-          res.status(401).json({"message": "Error sending the email with new password, please contact support."})
-        } else {
+        if (emailSended === email){
           res.status(200).json({"message": "Password changed succesfully"})
+        } else {
+          res.status(401).json(emailSended)
         }
+
       } catch(err) {
         next(err)
       }
