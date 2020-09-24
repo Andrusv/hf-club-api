@@ -14,6 +14,14 @@ class UsersService {
     return user;
   }
 
+  async getUserByIdMySQL(id){
+    const condition = `WHERE user_id='${id}'`
+
+    const user = await this.mySQL.select('*',this.collection,condition)
+
+    return user
+  }
+
   async getUserByEmail({ email }) {
     const [user] = await this.mongoDB.getAll(this.collection, { email });
     return user;

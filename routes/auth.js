@@ -52,6 +52,8 @@ function authApi(app) {
 
           const { _id: id, character_name, email } = user;
 
+          const { balance, level } = await usersService.getUserByIdMySQL(id)
+
           const payload = {
             sub: id,
             character_name,
@@ -63,7 +65,7 @@ function authApi(app) {
             expiresIn: '15m'
           });
 
-          return res.status(200).json({ token, user: { id, character_name, email } });
+          return res.status(200).json({ token, user: { id, character_name, email, balance, level } });
         });
       } catch (error) {
         next(error);

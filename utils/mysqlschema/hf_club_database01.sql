@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users(
     user_id VARCHAR(24) PRIMARY KEY,
-    balance DOUBLE(4,2) DEFAULT 0.00,
+    balance DOUBLE(5,2) DEFAULT 0.00,
     active TINYINT(1) DEFAULT 0,
     level TINYINT(1) DEFAULT 1,
     banned TINYINT(1) DEFAULT 0,
