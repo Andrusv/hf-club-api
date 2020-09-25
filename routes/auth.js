@@ -2,9 +2,12 @@ const express = require('express');
 const passport = require('passport');
 const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
+
+// SERVICES
 const ApiKeysService = require('../services/apiKeys');
 const UsersService = require('../services/users');
 const MailService = require('../services/mails')
+const WithdrawalsService = require('../services/withdrawals')
 
 // VALIDATION HANDLER
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -25,6 +28,7 @@ function authApi(app) {
   const apiKeysService = new ApiKeysService();
   const usersService = new UsersService();
   const mailService = new MailService();
+  const withdrawalsService = new WithdrawalsService();
 
   router.post('/sign-in', async function(req, res, next) {
     const { apiKeyToken } = req.body;
@@ -52,8 +56,6 @@ function authApi(app) {
 
           const { _id: id, character_name, email } = user;
 
-          const { balance, level } = await usersService.getUserByIdMySQL(id)
-
           const payload = {
             sub: id,
             character_name,
@@ -65,7 +67,11 @@ function authApi(app) {
             expiresIn: '15m'
           });
 
-          return res.status(200).json({ token, user: { id, character_name, email, balance, level } });
+          const { balance, level } = await usersService.getUserByIdMySQL(id)
+
+          const withdrawals = await withdrawalsService.getWithdrawals(id)
+
+          return res.status(200).json({ token, user: { id, character_name, email, balance, level }, withdrawals: withdrawals || [] });
         });
       } catch (error) {
         next(error);
@@ -109,6 +115,9 @@ function authApi(app) {
 
             const { _id: id, character_name, email } = queriedUser;
       
+            const balance = 0.00
+            const level = 1
+
             const payload = {
               sub: id,
               character_name,
@@ -120,7 +129,7 @@ function authApi(app) {
               expiresIn: '15m'
             });
       
-            return res.status(200).json({ token, user: { id, character_name, email } });
+            return res.status(200).json({ token, user: { id, character_name, email, balance, level }, withdrawals: [] });
           }
         } else {
           res.status(404).json({

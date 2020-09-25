@@ -6,7 +6,7 @@ class UsersService {
   constructor() {
     this.collection = 'users';
     this.mongoDB = new MongoLib();
-    this.mySQL = new MySqlLib;
+    this.mySQL = new MySqlLib();
   }
 
   async getUserById({ referred_id }) {
@@ -19,7 +19,7 @@ class UsersService {
 
     const user = await this.mySQL.select('*',this.collection,condition)
 
-    return user
+    return user[0] || {}
   }
 
   async getUserByEmail({ email }) {
