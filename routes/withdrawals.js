@@ -7,6 +7,7 @@ const WithdrawalsService = require('../services/withdrawals');
 
 // SCHEMAS
 const { userIdSchema } = require('../utils/schemas/users')
+const { withdrawSchema } = require('../utils/schemas/withdrawals')
 
 // MIDDLEWARES
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -44,6 +45,14 @@ function withdrawalsApi(app) {
         } catch(err) {
             res.status(401).json({"error": err})
         }
+    })
+
+    router.post('/withdraw',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['create:withdrawals']),
+    validationHandler(withdrawSchema),
+    async (req, res) => {
+        res.status(200).json({"todo": "fluye"})
     })
 }
 
