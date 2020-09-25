@@ -64,7 +64,7 @@ function authApi(app) {
           };
 
           const token = jwt.sign(payload, config.authJwtSecret, {
-            expiresIn: '15m'
+            expiresIn: '1d'
           });
 
           const { balance, level } = await usersService.getUserByIdMySQL(id)
@@ -126,7 +126,7 @@ function authApi(app) {
             };
       
             const token = jwt.sign(payload, config.authJwtSecret, {
-              expiresIn: '15m'
+              expiresIn: '1d'
             });
       
             return res.status(200).json({ token, user: { id, character_name, email, balance, level }, withdrawals: [] });
