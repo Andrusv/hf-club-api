@@ -68,6 +68,12 @@ class UsersService {
     return await this.mySQL.insert(this.collection,columns,`'${id}'`)
   }
 
+  async debitBalance(id,withdrawBalance){
+    const columns = `balance=balance-${withdrawBalance}`
+    const condition = `WHERE user_id='${id}'`
+    return await this.mySQL.update(this.collection,columns,condition) || {}
+  }
+
   createHash(length) {
     let result           = '';
     const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

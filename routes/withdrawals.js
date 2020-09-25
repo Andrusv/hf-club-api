@@ -4,6 +4,7 @@ const Joi = require('joi')
 
 // SERVICES
 const WithdrawalsService = require('../services/withdrawals');
+const UsersService = require('../services/users')
 
 // SCHEMAS
 const { userIdSchema } = require('../utils/schemas/users')
@@ -28,6 +29,9 @@ function withdrawalsApi(app) {
     app.use('/api/withdrawals', router);
 
     const withdrawalsService = new WithdrawalsService()
+    const usersService = new UsersService()
+
+    const availablePayments = [1,10,20,50]
 
     router.get('/refresh',
     passport.authenticate('jwt', { session: false }),
@@ -52,7 +56,27 @@ function withdrawalsApi(app) {
     scopesValidationHandler(['create:withdrawals']),
     validationHandler(withdrawSchema),
     async (req, res) => {
-        res.status(200).json({"todo": "fluye"})
+        const { user_id, withdrawBalance } = req.body
+
+        if( !availablePayments.includes(withdrawBalance) ) {
+            res.status(402).json({"error": "Error al procesar cantidad de retiro"})
+        }
+
+        try{
+            const { balance } = await usersService.getUserByIdMySQL(user_id)
+
+            if ( balance < withdrawBalance ) {
+                res.status(401).json({"error": "El usuario no posee suficientes creditos en su balance"})
+            }
+
+            const balanceDebited = await usersService.debitBalance(user_id,withdrawBalance)
+
+            if (balanceDebited.changedRows === 1) {
+                res.json({"balance": balance-withdrawBalance})
+            }
+        } catch(err) {
+            res.status(401).json({"error": error})
+        }
     })
 }
 
