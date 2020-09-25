@@ -27,11 +27,25 @@ function usersApi(app) {
 
     const usersService = new UsersService()
 
-    router.get('/', 
+    router.patch('/change-info', 
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['update:users']),
     validationHandler(changeInfoSchema),
-    (req,res) => res.json({"hello": "moto"}))
+    async (req,res) => {
+        cacheResponse(res, SIXTY_MINUTES_IN_SECONDS);
+
+        const { user_id, character_name } = req.body
+
+        try{
+            const characterNameChanged = await usersService.changeCharacterName(character_name,user_id)
+
+            if (characterNameChanged){
+                res.status(200).json({ "character_name": character_name })
+            }
+        } catch(err) {
+            res.status(401).json({"error": err})
+        }
+    })
 }
 
 module.exports = usersApi

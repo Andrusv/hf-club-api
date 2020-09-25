@@ -52,6 +52,10 @@ class UsersService {
     }
   }
 
+  async changeCharacterName( newCharacterName, id ) {
+    return await this.mongoDB.update(this.collection,id, { character_name: newCharacterName })
+  }
+
   async changeUserPassword( password, id ) {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
