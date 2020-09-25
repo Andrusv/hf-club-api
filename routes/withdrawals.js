@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const Joi = require('joi')
+const Joi = require('joi');
 
 // SERVICES
 const WithdrawalsService = require('../services/withdrawals');
