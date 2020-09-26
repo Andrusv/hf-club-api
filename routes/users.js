@@ -34,14 +34,20 @@ function usersApi(app) {
     async (req,res) => {
         cacheResponse(res, SIXTY_MINUTES_IN_SECONDS);
 
-        const { user_id, character_name } = req.body
+        const { user_id, character_name, password } = req.body
 
         try{
-            const characterNameChanged = await usersService.changeCharacterName(character_name,user_id)
-
-            if (characterNameChanged){
-                res.status(200).json({ "character_name": character_name })
+            if (character_name) {
+                console.log("changing character name")
+                await usersService.changeCharacterName(character_name,user_id)
             }
+
+            if (password) {
+                console.log('Changing pass')
+                await usersService.changeUserPassword(password,user_id)
+            }
+
+            res.status(200).json({"character_name": character_name})
         } catch(err) {
             res.status(401).json({"error": err})
         }
