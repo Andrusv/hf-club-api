@@ -1,11 +1,12 @@
 const express = require('express');
 const passport = require('passport');
+const Joi = require('joi')
 
 // SERVICES
 const UsersService = require('../services/users')
 
 // SCHEMAS
-const { changeInfoSchema } = require('../utils/schemas/users')
+const { changeInfoSchema, userIdSchema } = require('../utils/schemas/users')
 
 // MIDDLEWARES
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -51,6 +52,14 @@ function usersApi(app) {
         } catch(err) {
             res.status(401).json({"error": err})
         }
+    })
+
+    router.post('/level-up',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['update:users']),
+    validationHandler(Joi.object({user_id: userIdSchema.required()})),
+    async (req, res) => {
+        res.json({"todo": "bien"})
     })
 }
 
