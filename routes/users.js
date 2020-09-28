@@ -54,13 +54,6 @@ function usersApi(app) {
         }
     })
 
-    router.post('/level-up',
-    passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['update:users']),
-    validationHandler(Joi.object({user_id: userIdSchema.required()})),
-    async (req, res) => {
-        res.json({"todo": "bien"})
-    })
 }
 
 module.exports = usersApi
