@@ -34,14 +34,12 @@ function couponsApi(app) {
         const { numberOfCoupons } = req.body
 
         try{
-            const coupon = await usersService.createHash(5) + '-' + await usersService.createHash(5) + '-' + await usersService.createHash(5)
-
-            const couponEncrypted = await cryptoService.encrypt(coupon)
-
             for (let i = 0; i < numberOfCoupons; i++) {
                 const coupon = await usersService.createHash(5) + '-' + await usersService.createHash(5) + '-' + await usersService.createHash(5)
 
-                const url = `${config.domain}/coupon/`
+                const url = `${config.domain}/api/coupons/${coupon}`
+
+
                 const couponEncrypted = await cryptoService.encrypt(coupon)
 
                 console.log("url",url)
@@ -71,6 +69,16 @@ function couponsApi(app) {
         }
     })
 
+    router.get('/:coupon', function(req, res) {
+        const { coupon } = req.params
+        res.status(200).send(
+            `<!DOCTYPE html>
+            <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+            </head>
+            <body>${coupon}</body>
+            </html>`)
+    });
 }
 
 module.exports = couponsApi
