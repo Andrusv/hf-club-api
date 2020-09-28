@@ -6,12 +6,7 @@ const debug = require('debug')('app:scripts:api-keys');
 const MongoLib = require('../../lib/mongo');
 
 const usersScopes = [
-    'signin:auth',
-    'signup:auth',
-    'read:users',
-    'update:users',
-    'read:withdrawals',
-    'create:withdrawals'
+    'update:codes'
   ];
 
 const apiKeys = [

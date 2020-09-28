@@ -1,9 +1,8 @@
 const Joi = require('joi')
 
-const { userIdSchema, apiKeyTokenSchema } = require('./users')
+const { userIdSchema } = require('./users')
 
 const generateSchema = Joi.object({
-    apiKeyToken: apiKeyTokenSchema.required(),
     numberOfCoupons: Joi.number().required()
 })
 const exchangeSchema = Joi.object({

@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 
 // SERVICES
-const UsersService = require('../services/users')
+const ApiKeysService = require('../services/apiKeys');
 const CryptoService = require('../services/crypto')
 
 // SCHEMAS
@@ -20,15 +20,18 @@ function couponsApi(app) {
     app.use('/api/coupons', router);
 
     const cryptoService = new CryptoService()
+    const apiKeysService = new ApiKeysService();
 
     router.get('/generate',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['update:codes']),
     validationHandler(generateSchema),
     async (req,res) => {
 
-        const { apiKeyToken, numberOfCoupons } = req.body
+        const { numberOfCoupons } = req.body
 
         try{
-                
+            
             res.status(200).json({"todo": "correcto"})
         } catch(err) {
             res.status(401).json({"error": err})
