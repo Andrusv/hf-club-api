@@ -3,6 +3,7 @@ const passport = require('passport');
 
 // SERVICES
 const UsersService = require('../services/users')
+const CryptoService = require('../services/crypto')
 
 // SCHEMAS
 const { exchangeSchema } = require('../utils/schemas/coupons')
@@ -18,6 +19,8 @@ function couponsApi(app) {
     const router = express.Router();
     app.use('/api/coupons', router);
 
+    const cryptoService = new CryptoService()
+
     router.get('/exchange', 
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:codes']),
@@ -27,7 +30,11 @@ function couponsApi(app) {
         const { user_id, coupon } = req.body
 
         try{
-            res.status(200).json({"todo":"espectacular"})
+            const couponEncrypted = await cryptoService.encrypt(coupon)
+
+            const couponDecrypted = await cryptoService.decrypt(couponEncrypted)
+
+            res.status(200).json({"coupon_Encrypted": couponEncrypted, "couponDecrypted": couponDecrypted})
         } catch(err) {
             res.status(401).json({"error": err})
         }
