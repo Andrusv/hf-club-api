@@ -1,9 +1,12 @@
 const express = require('express');
 const passport = require('passport');
 
+// CONFIG
+const { config } = require('../config/index')
+
 // SERVICES
-const ApiKeysService = require('../services/apiKeys');
 const CryptoService = require('../services/crypto')
+const UsersService = require('../services/users')
 
 // SCHEMAS
 const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
@@ -20,7 +23,7 @@ function couponsApi(app) {
     app.use('/api/coupons', router);
 
     const cryptoService = new CryptoService()
-    const apiKeysService = new ApiKeysService();
+    const usersService = new UsersService()
 
     router.get('/generate',
     passport.authenticate('jwt', { session: false }),
@@ -31,8 +34,20 @@ function couponsApi(app) {
         const { numberOfCoupons } = req.body
 
         try{
-            
-            res.status(200).json({"todo": "correcto"})
+            const coupon = await usersService.createHash(5) + '-' + await usersService.createHash(5) + '-' + await usersService.createHash(5)
+
+            const couponEncrypted = await cryptoService.encrypt(coupon)
+
+            for (let i = 0; i < numberOfCoupons; i++) {
+                const coupon = await usersService.createHash(5) + '-' + await usersService.createHash(5) + '-' + await usersService.createHash(5)
+
+                const url = `${config.domain}/coupon/`
+                const couponEncrypted = await cryptoService.encrypt(coupon)
+
+                console.log("url",url)
+            }
+
+            res.status(200).json({"coupon": "couponEncrypted"})
         } catch(err) {
             res.status(401).json({"error": err})
         }

@@ -16,7 +16,8 @@ const config = {
     emailSender: process.env.EMAIL_SENDER,
     emailPassword: process.env.EMAIL_PASSWORD,
     emailSenderService: process.env.EMAIL_SENDER_SERVICE,
-    authDecryptKey: process.env.AUTH_DECRYPT_KEY
+    authDecryptKey: process.env.AUTH_DECRYPT_KEY,
+    domain: process.env.DOMAIN
 }
 
 module.exports = { config }

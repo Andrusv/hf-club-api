@@ -1,6 +1,7 @@
 const MongoLib = require('../lib/mongo');
 const MySqlLib = require('../lib/mysql');
 const bcryptjs = require('bcryptjs');
+const { resolve } = require('path');
 
 class UsersService {
   constructor() {
@@ -78,14 +79,18 @@ class UsersService {
     return await this.mySQL.update(this.collection,columns,condition) || {}
   }
 
-  createHash(length) {
-    let result           = '';
-    const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+  async createHash(length) {
+    return new Promise((resolve,reject) => {
+      let result           = '';
+      const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const charactersLength = characters.length;
+
+      for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+
+      resolve( result )
+    })
   }
 }
 
