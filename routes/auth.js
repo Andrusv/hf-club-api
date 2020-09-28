@@ -67,11 +67,11 @@ function authApi(app) {
             expiresIn: '1d'
           });
 
-          const { balance, level } = await usersService.getUserByIdMySQL(id)
+          const { balance } = await usersService.getUserByIdMySQL(id)
 
           const withdrawals = await withdrawalsService.getWithdrawals(id)
 
-          return res.status(200).json({ token, user: { id, character_name, email, balance, level }, withdrawals: withdrawals || [] });
+          return res.status(200).json({ token, user: { id, character_name, email, balance }, withdrawals: withdrawals || [] });
         });
       } catch (error) {
         next(error);
@@ -116,7 +116,6 @@ function authApi(app) {
             const { _id: id, character_name, email } = queriedUser;
       
             const balance = 0.00
-            const level = 1
 
             const payload = {
               sub: id,
@@ -129,7 +128,7 @@ function authApi(app) {
               expiresIn: '1d'
             });
       
-            return res.status(200).json({ token, user: { id, character_name, email, balance, level }, withdrawals: [] });
+            return res.status(200).json({ token, user: { id, character_name, email, balance}, withdrawals: [] });
           }
         } else {
           res.status(404).json({
