@@ -6,6 +6,7 @@ const { config } = require('./config/index.js')
 const authApi = require('./routes/auth')
 const withdrawalsApi = require('./routes/withdrawals')
 const usersApi = require('./routes/users')
+const couponsApi = require('./routes/coupons')
 
 // BODY PARSER
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use(express.json());
 authApi(app)
 withdrawalsApi(app)
 usersApi(app)
+couponsApi(app)
 
 app.patch('/:coupon', function(req, res) {
     const { coupon } = req.params
