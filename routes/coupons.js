@@ -32,9 +32,8 @@ function couponsApi(app) {
         try{
             const couponEncrypted = await cryptoService.encrypt(coupon)
 
-            const couponDecrypted = await cryptoService.decrypt(couponEncrypted)
-
-            res.status(200).json({"coupon_Encrypted": couponEncrypted, "couponDecrypted": couponDecrypted})
+            
+            res.status(200).json({})
         } catch(err) {
             res.status(401).json({"error": err})
         }
