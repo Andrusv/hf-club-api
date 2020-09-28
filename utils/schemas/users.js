@@ -25,4 +25,4 @@ const changeInfoSchema = Joi.object({
     password: passwordSchema
 })
 
-module.exports = { userIdSchema, createUserSchema, forgottenPasswordSchema, changeInfoSchema }
+module.exports = { userIdSchema, createUserSchema, forgottenPasswordSchema, changeInfoSchema, apiKeyTokenSchema }

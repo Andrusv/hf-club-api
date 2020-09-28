@@ -6,7 +6,7 @@ const UsersService = require('../services/users')
 const CryptoService = require('../services/crypto')
 
 // SCHEMAS
-const { exchangeSchema } = require('../utils/schemas/coupons')
+const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
 
 // MIDDLEWARES
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -21,6 +21,20 @@ function couponsApi(app) {
 
     const cryptoService = new CryptoService()
 
+    router.get('/generate',
+    validationHandler(generateSchema),
+    async (req,res) => {
+
+        const { apiKeyToken, numberOfCoupons } = req.body
+
+        try{
+                
+            res.status(200).json({"todo": "correcto"})
+        } catch(err) {
+            res.status(401).json({"error": err})
+        }
+    })
+
     router.get('/exchange', 
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:codes']),
@@ -32,7 +46,7 @@ function couponsApi(app) {
         try{
             const couponEncrypted = await cryptoService.encrypt(coupon)
 
-            
+
             res.status(200).json({})
         } catch(err) {
             res.status(401).json({"error": err})
