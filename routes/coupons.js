@@ -14,6 +14,7 @@ const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
 // MIDDLEWARES
 const validationHandler = require('../utils/middleware/validationHandler');
 const scopesValidationHandler = require('../utils/middleware/scopesValidationHandler');
+const coupons = require('../utils/schemas/coupons');
 
 // JWT strategy
 require('../utils/auth/strategies/jwt');
@@ -30,7 +31,15 @@ function couponsApi(app) {
     scopesValidationHandler(['update:codes']),
     validationHandler(generateSchema),
     async (req,res) => {
-        
+        const { numberOfCoupons } = req.body
+
+        const coupons = await new Promise( async (resolve, reject) => {
+            resolve(await couponsService.createCoupons(numberOfCoupons))
+        }).catch((err) => {
+            return res.status(401).json({"error": err})
+        })
+
+        return res.status(200).json({"coupons": coupons})
     })
 
     router.get('/exchange', 
