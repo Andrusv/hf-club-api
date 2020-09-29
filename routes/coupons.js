@@ -6,7 +6,7 @@ const { config } = require('../config/index')
 
 // SERVICES
 const CryptoService = require('../services/crypto')
-const UsersService = require('../services/users')
+const CouponsService = require('../services/coupons')
 
 // SCHEMAS
 const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
@@ -23,32 +23,14 @@ function couponsApi(app) {
     app.use('/api/coupons', router);
 
     const cryptoService = new CryptoService()
-    const usersService = new UsersService()
+    const couponsService = new CouponsService()
 
     router.get('/generate',
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['update:codes']),
     validationHandler(generateSchema),
     async (req,res) => {
-
-        const { numberOfCoupons } = req.body
-
-        try{
-            for (let i = 0; i < numberOfCoupons; i++) {
-                const coupon = await usersService.createHash(5) + '-' + await usersService.createHash(5) + '-' + await usersService.createHash(5)
-
-                const url = `${config.domain}/api/coupons/${coupon}`
-
-
-                const couponEncrypted = await cryptoService.encrypt(coupon)
-
-                console.log("url",url)
-            }
-
-            res.status(200).json({"coupon": "couponEncrypted"})
-        } catch(err) {
-            res.status(401).json({"error": err})
-        }
+        
     })
 
     router.get('/exchange', 

@@ -1,7 +1,6 @@
 const MongoLib = require('../lib/mongo');
 const MySqlLib = require('../lib/mysql');
 const bcryptjs = require('bcryptjs');
-const { resolve } = require('path');
 
 class UsersService {
   constructor() {
