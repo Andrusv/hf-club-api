@@ -15,6 +15,8 @@ const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
 const validationHandler = require('../utils/middleware/validationHandler');
 const scopesValidationHandler = require('../utils/middleware/scopesValidationHandler');
 const coupons = require('../utils/schemas/coupons');
+const Joi = require('joi');
+const { userIdSchema } = require('../utils/schemas/users');
 
 // JWT strategy
 require('../utils/auth/strategies/jwt');
@@ -26,7 +28,7 @@ function couponsApi(app) {
     const cryptoService = new CryptoService()
     const couponsService = new CouponsService()
 
-    router.get('/generate',
+    router.post('/generate',
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['update:codes']),
     validationHandler(generateSchema),
@@ -59,9 +61,9 @@ function couponsApi(app) {
                 })
             )
 
-            //const ouoLinks = linksWithCoupons
+            const ouoLinks = linksWithCoupons
 
-            const insertedCoupons = await couponsService.addCoupons(nonExistingCoupons,linksWithCoupons)
+            const insertedCoupons = await couponsService.addCoupons(nonExistingCoupons,ouoLinks)
 
             return res.status(200).json({"couponsCreated": insertedCoupons.length})
 
@@ -70,7 +72,34 @@ function couponsApi(app) {
         }
     })
 
-    router.get('/exchange', 
+    router.get('/get-link', 
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:codes']),
+    validationHandler(Joi.object({user_id: userIdSchema})),
+    async (req,res) => {
+
+        const { user_id } = req.body
+
+        try{
+            let unusedLink = await couponsService.getUnusedLink(user_id)
+
+            if ( !unusedLink ) {
+                const asignedLink = await couponsService.asignLink(user_id)
+
+                if (asignedLink) {
+                    unusedLink = await couponsService.getUnusedLink(user_id)
+                } else {
+                    unusedLink = 0 //Se acabaron los cupones :(
+                }
+            }
+
+            res.status(200).json({"link": unusedLink})
+        } catch(err) {
+            res.status(401).json({"error": error})
+        }
+    })
+
+    router.post('/exchange', 
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:codes']),
     validationHandler(exchangeSchema),
@@ -79,10 +108,9 @@ function couponsApi(app) {
         const { user_id, coupon } = req.body
 
         try{
-            const couponEncrypted = await cryptoService.encrypt(coupon)
+            
 
-
-            res.status(200).json({})
+            res.status(200).json({"CouponExist": "couponExist"})
         } catch(err) {
             res.status(401).json({"error": err})
         }

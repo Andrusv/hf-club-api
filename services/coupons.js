@@ -1,7 +1,6 @@
 const MySqlLib = require('../lib/mysql');
 const UsersService = require('../services/users')
 const CryptoService = require('../services/crypto')
-const { config } = require('../config/index')
 
 class CouponsService {
     constructor(){
@@ -55,6 +54,28 @@ class CouponsService {
             return couponsInserted
         }
         return await addCoupons()
+    }
+
+    async getUnusedLink(user_id) {
+        const columns = 'link'
+        const condition = `WHERE user_id="${user_id}" AND used=0`
+
+        const unusedLink = await this.mySqlLib.select(columns,this.table,condition)
+
+        if (unusedLink[0]) {
+            return unusedLink[0].link || {}
+        } else {
+            return
+        }
+    }
+
+    async asignLink(user_id) {
+        const columns = `user_id="${user_id}"`
+        const condition = `WHERE user_id is NULL LIMIT 1`
+
+        const linkAsigned = await this.mySqlLib.update(this.table,columns,condition)
+
+        return linkAsigned.affectedRows || {}
     }
 }
 

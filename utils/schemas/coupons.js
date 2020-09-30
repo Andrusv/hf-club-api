@@ -7,7 +7,7 @@ const generateSchema = Joi.object({
 })
 const exchangeSchema = Joi.object({
     user_id: userIdSchema.required(),
-    coupon: Joi.string().regex(/^[0-9a-z\-]{17}$/).required()
+    coupon: Joi.string().regex(/^[0-9a-zA-Z\-]{17}$/).required()
 })
 
 module.exports = { generateSchema ,exchangeSchema }

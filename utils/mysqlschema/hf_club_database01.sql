@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS coupons(
     link VARCHAR(21) NOT NULL,
     user_id VARCHAR(24),
     used TINYINT(1) DEFAULT 0,
+    aproved TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     used_at TIMESTAMP DEFAULT 0
 );
