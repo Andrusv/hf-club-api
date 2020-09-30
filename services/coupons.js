@@ -2,9 +2,6 @@ const MySqlLib = require('../lib/mysql');
 const UsersService = require('../services/users')
 const CryptoService = require('../services/crypto')
 const { config } = require('../config/index')
-const chalk = require('chalk');
-const { rejects } = require('assert');
-const coupons = require('../utils/schemas/coupons');
 
 class CouponsService {
     constructor(){
@@ -29,11 +26,35 @@ class CouponsService {
     }
 
     async couponExists(couponEncrypted){
+        const columns = 'coupon'
+        const condition = `WHERE coupon="${couponEncrypted}"`
 
+        const exists = await this.mySqlLib.select(columns,this.table,condition)
+
+        if (exists[0]) {
+            return
+        } else {
+            return couponEncrypted
+        }
     }
 
-    async addCoupons(couponEncrypted,ouoLink) {
+    async addCoupons(couponsEncrypted,ouoLinks) {
+        const columns = 'coupon,link'
+        
+        const addCoupons = async () => {
+            let couponsInserted = []
+            for (let i = 0; i < ouoLinks.length; i++) {
+                const values = `"${couponsEncrypted[i]}","${ouoLinks[i]}"`                     
+                try{
+                    couponsInserted.push(await this.mySqlLib.insert(this.table,columns,values))
+                } catch(err) {
+                    console.log(err)
+                }
+            }
 
+            return couponsInserted
+        }
+        return await addCoupons()
     }
 }
 

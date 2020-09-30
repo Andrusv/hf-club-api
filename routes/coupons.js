@@ -32,14 +32,42 @@ function couponsApi(app) {
     validationHandler(generateSchema),
     async (req,res) => {
         const { numberOfCoupons } = req.body
+        try {
+            const coupons = await couponsService.createCoupons(numberOfCoupons)
 
-        const coupons = await new Promise( async (resolve, reject) => {
-            resolve(await couponsService.createCoupons(numberOfCoupons))
-        }).catch((err) => {
+            const couponsEncrypted = await Promise.all(coupons.map( async coupon => {
+                    return await cryptoService.encrypt(coupon)
+            }))
+
+            const existingCoupons = await Promise.all( couponsEncrypted.map( async coupon => {
+                    return await couponsService.couponExists(coupon)
+            }))
+
+            const nonExistingCoupons = await Promise.all(existingCoupons.filter(couponExist => {
+                if(couponExist){
+                    return couponExist
+                }
+            }))
+
+            const decryptedNonExistingCoupons = await Promise.all(nonExistingCoupons.map( async coupon => {
+                return await cryptoService.decrypt(coupon)
+            }))
+
+            const linksWithCoupons = await Promise.all(
+                decryptedNonExistingCoupons.map( async coupon => {
+                    return`${config.domain}/api/coupons/${coupon}`
+                })
+            )
+
+            //const ouoLinks = linksWithCoupons
+
+            const insertedCoupons = await couponsService.addCoupons(nonExistingCoupons,linksWithCoupons)
+
+            return res.status(200).json({"couponsCreated": insertedCoupons.length})
+
+        } catch(err) { 
             return res.status(401).json({"error": err})
-        })
-
-        return res.status(200).json({"coupons": coupons})
+        }
     })
 
     router.get('/exchange', 
