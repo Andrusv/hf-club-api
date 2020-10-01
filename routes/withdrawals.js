@@ -72,7 +72,10 @@ function withdrawalsApi(app) {
             const balanceDebited = await usersService.debitBalance(user_id,withdrawBalance)
 
             if (balanceDebited.changedRows === 1) {
-                res.json({"balance": balance-withdrawBalance})
+
+                const withdrawalCreated = await withdrawalsService.createWithdrawal(user_id,withdrawBalance)
+
+                res.json({"balance": balance-withdrawBalance, "withdrawals": withdrawalCreated})
             }
         } catch(err) {
             res.status(401).json({"error": error})
