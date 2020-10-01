@@ -75,7 +75,7 @@ function withdrawalsApi(app) {
 
                 const withdrawalCreated = await withdrawalsService.createWithdrawal(user_id,withdrawBalance)
 
-                res.json({"balance": balance-withdrawBalance, "withdrawals": withdrawalCreated})
+                res.json({"balance": balance-withdrawBalance, "withdrawalId": withdrawalCreated})
             }
         } catch(err) {
             res.status(401).json({"error": error})
