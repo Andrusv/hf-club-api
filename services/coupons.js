@@ -77,6 +77,45 @@ class CouponsService {
 
         return linkAsigned.affectedRows || {}
     }
+
+    async verifyCoupon(user_id,coupon) {
+        const columns = 'coupon'
+        const condition = `WHERE user_id="${user_id}" AND used=0 LIMIT 1`
+
+        try{
+            const couponEncrypted = await this.mySqlLib.select(columns,this.table,condition)
+
+            if (couponEncrypted[0]) {
+                const couponDecrypted = await this.cryptoService.decrypt(couponEncrypted[0].coupon)
+
+                if (coupon === couponDecrypted){
+                    return this.exchangeCoupon(user_id)
+                }
+                return "Este cupon no le corresponde a tu keko o no existe :c"
+            } else {
+                return "Coupon doesn't exist :c"
+            }
+        } catch(err) {
+            return err
+        }
+    }
+
+    async exchangeCoupon(user_id) {
+        const columns = `used=1`
+        const condition = `WHERE user_id="${user_id}" AND used=0 LIMIT 1`
+
+        const exchange = await this.mySqlLib.update(this.table,columns,condition)
+
+        if (!exchange.changedRows) {
+            return 0
+        }
+
+        const chiklin = await this.usersService.payCredits(user_id)
+
+        if (chiklin) {
+            return chiklin.changedRows || 0
+        }
+    }
 }
 
 module.exports = CouponsService

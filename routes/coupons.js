@@ -101,16 +101,16 @@ function couponsApi(app) {
 
     router.post('/exchange', 
     passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['read:codes']),
+    scopesValidationHandler(['read:codes','update:users']),
     validationHandler(exchangeSchema),
     async (req,res) => {
 
         const { user_id, coupon } = req.body
 
         try{
-            
+            const couponExchanged = await couponsService.verifyCoupon(user_id,coupon)
 
-            res.status(200).json({"CouponExist": "couponExist"})
+            res.status(200).json({"CouponExchanged": couponExchanged})
         } catch(err) {
             res.status(401).json({"error": err})
         }

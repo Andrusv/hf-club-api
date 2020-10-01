@@ -2,11 +2,14 @@ const MongoLib = require('../lib/mongo');
 const MySqlLib = require('../lib/mysql');
 const bcryptjs = require('bcryptjs');
 
+const COUPON_VALUE = 0.025
+
 class UsersService {
   constructor() {
     this.collection = 'users';
     this.mongoDB = new MongoLib();
     this.mySQL = new MySqlLib();
+    this.couponValue = COUPON_VALUE;
   }
 
   async getUserById({ referred_id }) {
@@ -90,6 +93,12 @@ class UsersService {
 
       resolve( result )
     })
+  }
+
+  async payCredits(user_id) {
+    const columns = `balance=balance+${this.couponValue}`
+    const condition = `WHERE user_id="${user_id}" LIMIT 1`
+    return await this.mySQL.update(this.collection,columns,condition)
   }
 }
 
