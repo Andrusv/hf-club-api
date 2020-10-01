@@ -2,6 +2,9 @@ const MySqlLib = require('../lib/mysql');
 const UsersService = require('../services/users')
 const CryptoService = require('../services/crypto')
 
+const COUPON_VALUE = 0.025
+const REFERRER_COUPON_VALUE = COUPON_VALUE*0.1
+
 class CouponsService {
     constructor(){
         this.couponsCreated
@@ -9,6 +12,9 @@ class CouponsService {
         this.mySqlLib = new MySqlLib()
         this.usersService = new UsersService()
         this.cryptoService = new CryptoService()
+
+        this.couponValue = COUPON_VALUE
+        this.referrerCouponValue = REFERRER_COUPON_VALUE
     }
 
     async createCoupons(numberOfCoupons) {
@@ -110,7 +116,7 @@ class CouponsService {
             return 0
         }
 
-        const chiklin = await this.usersService.payCredits(user_id)
+        const chiklin = await this.usersService.payCredits(user_id,this.couponValue)
 
         if (chiklin) {
             return chiklin.changedRows || 0
