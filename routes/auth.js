@@ -128,7 +128,6 @@ function authApi(app) {
 
           const clubStats = await adminService.getStats();
 
-          console.log(clubStats)
           return res.status(200).json({ token, stats: clubStats});
         });
       } catch (error) {
