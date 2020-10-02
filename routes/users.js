@@ -54,6 +54,13 @@ function usersApi(app) {
         }
     })
 
+    router.get('/refresh-stats', 
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:users', 'read:withdrawals', 'read:codes']),
+    async (req, res) => {
+        cacheResponse(res, FIVE_MINUTES_IN_SECONDS)
+        res.json({"todfo": "correcto"})
+    })
 }
 
 module.exports = usersApi
