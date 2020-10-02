@@ -1,9 +1,9 @@
 const express = require('express');
 const passport = require('passport');
-const Joi = require('joi')
 
 // SERVICES
 const UsersService = require('../services/users')
+const AdminService = require('../services/admin')
 
 // SCHEMAS
 const { changeInfoSchema, userIdSchema } = require('../utils/schemas/users')
@@ -27,6 +27,7 @@ function usersApi(app) {
     app.use('/api/users', router);
 
     const usersService = new UsersService()
+    const adminService = new AdminService()
 
     router.patch('/change-info', 
     passport.authenticate('jwt', { session: false }),
@@ -59,8 +60,15 @@ function usersApi(app) {
     scopesValidationHandler(['read:users', 'read:withdrawals', 'read:codes']),
     async (req, res) => {
         cacheResponse(res, FIVE_MINUTES_IN_SECONDS)
-        res.json({"todfo": "correcto"})
-    })
+
+        try{
+            const clubStats = await adminService.getStats()
+
+            res.status(200).json({stats: clubStats})
+        } catch(err) {
+            res.status(401).json({err: err})
+        }
+    })  
 }
 
 module.exports = usersApi
