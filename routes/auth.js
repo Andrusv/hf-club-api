@@ -8,6 +8,7 @@ const ApiKeysService = require('../services/apiKeys');
 const UsersService = require('../services/users');
 const MailService = require('../services/mails')
 const WithdrawalsService = require('../services/withdrawals')
+const AdminService = require('../services/admin')
 
 // VALIDATION HANDLER
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -29,6 +30,7 @@ function authApi(app) {
   const usersService = new UsersService();
   const mailService = new MailService();
   const withdrawalsService = new WithdrawalsService();
+  const adminService = new AdminService();
 
   router.post('/sign-in', async function(req, res, next) {
     const { apiKeyToken } = req.body;
@@ -79,6 +81,62 @@ function authApi(app) {
     })(req, res, next);
   });
   
+  router.post('/sign-in-admin', async function(req, res, next) {
+    const { apiKeyToken } = req.body;
+
+    if (!apiKeyToken) {
+      next(boom.unauthorized('apiKeyToken is required'));
+    }
+
+    passport.authenticate('basic', function(error, user) {
+      try {
+        if (error || !user) {
+          next(boom.unauthorized());
+        }
+
+        req.login(user, { session: false }, async function(error) {
+          if (error) {
+            next(error);
+          }
+
+          const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
+
+          if (!apiKey) {
+            next(boom.unauthorized());
+          }
+
+          if (apiKey.token != config.adminApi) {
+            next(boom.unauthorized());
+          }
+
+          const { _id: id, character_name, email } = user;
+
+          if (email != config.adminEmail) {
+            next(boom.unauthorized());
+          }
+
+          const payload = {
+            sub: id,
+            character_name,
+            email,
+            scopes: apiKey.scopes
+          };
+
+          const token = jwt.sign(payload, config.authJwtSecret, {
+            expiresIn: '1d'
+          });
+
+          const clubStats = await adminService.getStats();
+
+          console.log(clubStats)
+          return res.status(200).json({ token, stats: clubStats});
+        });
+      } catch (error) {
+        next(error);
+      }
+    })(req, res, next);
+  });
+
   router.post('/sign-up',
     validationHandler(createUserSchema),
     async function(req, res, next) {
