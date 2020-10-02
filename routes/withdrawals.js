@@ -81,6 +81,13 @@ function withdrawalsApi(app) {
             res.status(401).json({"error": error})
         }
     })
+
+    router.get('/aproved-withdrawals',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:withdrawals']),
+    async (req, res) => {
+        res.json({todo:"correcto"})
+    })
 }
 
 module.exports = withdrawalsApi
