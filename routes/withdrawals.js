@@ -86,7 +86,11 @@ function withdrawalsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:withdrawals']),
     async (req, res) => {
-        res.json({todo:"correcto"})
+        cacheResponse(res, FIVE_MINUTES_IN_SECONDS)
+        
+        const aprovedWithdrawals = await withdrawalsService.getAprovedWithdrawals()
+        
+        res.json({aprovedWithdrawals})
     })
 }
 
