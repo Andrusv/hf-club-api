@@ -87,10 +87,28 @@ function withdrawalsApi(app) {
     scopesValidationHandler(['read:withdrawals']),
     async (req, res) => {
         cacheResponse(res, FIVE_MINUTES_IN_SECONDS)
-        
+
         const aprovedWithdrawals = await withdrawalsService.getAprovedWithdrawals()
         
         res.json({aprovedWithdrawals})
+    })
+
+    router.post('/pay',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['update:withdrawals']),
+    async (req, res) => {
+        const { withdrawal_id } = req.body
+
+        try{
+            if (!withdrawal_id) {
+                res.status(401).json({error: "Withdrawal_id inexistente"})
+            } else {
+                const payUser = await withdrawalsService.payWithdrawal(withdrawal_id)
+                res.status(200).json({userPaid:payUser.changedRows})
+            }
+        } catch(err) {
+            res.status(401).json({error: err})
+        }
     })
 }
 

@@ -18,16 +18,23 @@ class WithdrawalsService{
     }
 
     async getAprovedWithdrawals() {
-        const columns = 'user_id,balance'
+        const columns = 'withdrawal_id,user_id,balance'
         const condition = 'WHERE aproved=1 AND received=0'
 
         return await this.mySqlLib.select(columns,this.table,condition)
     }
-    
+
     async createWithdrawal(user_id,balance) {
         const columns = `user_id,balance`
         const values = `"${user_id}",${balance}`
         return await this.mySqlLib.insert(this.table,columns,values)
+    }
+
+    async payWithdrawal(withdrawal_id) {
+        const columns = 'received=1'
+        const condition = `WHERE withdrawal_id=${withdrawal_id}`
+
+        return this.mySqlLib.update(this.table,columns,condition)
     }
 }
 
