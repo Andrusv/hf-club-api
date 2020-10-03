@@ -28,7 +28,7 @@ class AdminService {
 
         const totalUserBalance = await this.usersBalance()
 
-        const totalCredits = await totalWithdrawalBalance[0].balance + totalUserBalance[0].balance
+        const totalCredits = await totalWithdrawalBalance[0].balance + totalUserBalance[0].balance + totalUserBalance[0].referrer_balance
 
         const totalWithdrawals = totalWithdrawalBalance[0].totalWithdrawals
 
@@ -52,7 +52,7 @@ class AdminService {
     }
 
     async usersBalance() {
-        const columns = 'SUM(balance) AS balance'
+        const columns = 'SUM(balance) AS balance, SUM(referrer_balance) AS referrer_balance'
         const table = 'users'
         const condition = 'WHERE banned=0'
 
