@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const Joi = require('joi')
 
 // SERVICES
 const UsersService = require('../services/users')
@@ -69,6 +70,18 @@ function usersApi(app) {
             res.status(401).json({err: err})
         }
     })  
+
+    router.post('/ban', 
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['update:users']),
+    validationHandler(Joi.object({"user_id":userIdSchema}).required()),
+    async (req, res) => {
+        try{
+            res.status(200).json({tofo: "correct"})
+        } catch(err) {
+            res.status(401).json({err: err})
+        }
+    })
 }
 
 module.exports = usersApi
