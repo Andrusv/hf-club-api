@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users(
 
 CREATE TABLE IF NOT EXISTS withdrawals(
     withdrawal_id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    couponWithdrawal TINYINT(1) NOT NULL,
     user_id VARCHAR(24) NOT NULL,
     balance DOUBLE(5,2) NOT NULL,
     received TINYINT(1) DEFAULT 0,

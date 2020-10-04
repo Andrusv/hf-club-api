@@ -56,26 +56,40 @@ function withdrawalsApi(app) {
     scopesValidationHandler(['create:withdrawals']),
     validationHandler(withdrawSchema),
     async (req, res) => {
-        const { user_id, withdrawBalance } = req.body
+        const { user_id, withdrawBalance, couponWithdrawal } = req.body
 
         if( !availablePayments.includes(withdrawBalance) ) {
             res.status(402).json({"error": "Error al procesar cantidad de retiro"})
         }
 
         try{
-            const { balance } = await usersService.getUserByIdMySQL(user_id)
+            const { balance, referrer_balance: referrerBalance } = await usersService.getUserByIdMySQL(user_id)
 
-            if ( balance < withdrawBalance ) {
+            if (couponWithdrawal){
+                if ( balance < withdrawBalance ) {
                 res.status(401).json({"error": "El usuario no posee suficientes creditos en su balance"})
-            }
+                }
 
-            const balanceDebited = await usersService.debitBalance(user_id,withdrawBalance)
+                const balanceDebited = await usersService.debitBalance(user_id,withdrawBalance)
 
-            if (balanceDebited.changedRows === 1) {
+                if (balanceDebited.changedRows === 1) {
 
-                const withdrawalCreated = await withdrawalsService.createWithdrawal(user_id,withdrawBalance)
+                    const withdrawalCreated = await withdrawalsService.createWithdrawal(user_id,withdrawBalance,couponWithdrawal)
 
-                res.json({"balance": balance-withdrawBalance, "withdrawalId": withdrawalCreated})
+                    res.json({"balance": balance-withdrawBalance, "withdrawalId": withdrawalCreated})
+                }
+            } else {
+                if ( referrerBalance < withdrawBalance ) {
+                    res.status(401).json({"error": "El usuario no posee suficientes creditos en su balance"})
+                }
+
+                const referrerBalanceDebited = await usersService.debitReferrerBalance(user_id,withdrawBalance)
+
+                if (referrerBalanceDebited.changedRows === 1) {
+                    const withdrawalCreated = await withdrawalsService.createWithdrawal(user_id,withdrawBalance,couponWithdrawal)
+
+                    res.json({"referrerBalance": referrerBalance-withdrawBalance, "withdrawalId": withdrawalCreated})
+                }
             }
         } catch(err) {
             res.status(401).json({"error": error})

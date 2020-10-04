@@ -78,6 +78,12 @@ class UsersService {
     return await this.mySQL.update(this.collection,columns,condition) || {}
   }
 
+  async debitReferrerBalance(id,withdrawBalance){
+    const columns = `referrer_balance=referrer_balance-${withdrawBalance}`
+    const condition = `WHERE user_id='${id}'`
+    return await this.mySQL.update(this.collection,columns,condition) || {}
+  }
+
   async createHash(length) {
     return new Promise((resolve,reject) => {
       let result           = '';

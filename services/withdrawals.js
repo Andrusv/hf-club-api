@@ -24,9 +24,9 @@ class WithdrawalsService{
         return await this.mySqlLib.select(columns,this.table,condition)
     }
 
-    async createWithdrawal(user_id,balance) {
-        const columns = `user_id,balance`
-        const values = `"${user_id}",${balance}`
+    async createWithdrawal(user_id,balance,couponWithdrawal) {
+        const columns = `couponWithdrawal,user_id,balance`
+        const values = `${couponWithdrawal},"${user_id}",${balance}`
         return await this.mySqlLib.insert(this.table,columns,values)
     }
 
