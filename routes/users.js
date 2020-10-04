@@ -71,6 +71,24 @@ function usersApi(app) {
         }
     })  
 
+    router.get('/refresh-referrer-balance',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:withdrawals']),
+    validationHandler(Joi.object({user_id:userIdSchema.required()})),
+    async function (req,res) {
+        cacheResponse(res, FIVE_MINUTES_IN_SECONDS);
+
+        const { user_id: id } = req.body
+
+        try{
+            const { referrer_balance : referrerBalance} = await usersService.getUserByIdMySQL(id)
+
+            res.status(200).json({"referrerBalance": referrerBalance})
+        } catch(err) {
+            res.status(401).json({"error": err})
+        }
+    })
+    
     router.post('/ban', 
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['update:users']),

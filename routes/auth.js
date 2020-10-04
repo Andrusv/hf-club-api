@@ -69,11 +69,11 @@ function authApi(app) {
             expiresIn: '1d'
           });
 
-          const { balance } = await usersService.getUserByIdMySQL(id)
+          const { balance, referrer_balance } = await usersService.getUserByIdMySQL(id)
 
           const withdrawals = await withdrawalsService.getWithdrawals(id)
 
-          return res.status(200).json({ token, user: { id, character_name, email, balance }, withdrawals: withdrawals || [] });
+          return res.status(200).json({ token, user: { id, character_name, email, balance, referrer_balance }, withdrawals: withdrawals || [] });
         });
       } catch (error) {
         next(error);
@@ -172,7 +172,8 @@ function authApi(app) {
 
             const { _id: id, character_name, email } = queriedUser;
       
-            const balance = 0.00
+            const balance = 0.0000
+            const referrer_balance = 0.0000
 
             const payload = {
               sub: id,
@@ -185,7 +186,7 @@ function authApi(app) {
               expiresIn: '1d'
             });
       
-            return res.status(200).json({ token, user: { id, character_name, email, balance}, withdrawals: [] });
+            return res.status(200).json({ token, user: { id, character_name, email, balance, referrer_balance}, withdrawals: [] });
           }
         } else {
           res.status(404).json({
