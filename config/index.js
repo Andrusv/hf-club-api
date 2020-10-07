@@ -19,7 +19,9 @@ const config = {
     authDecryptKey: process.env.AUTH_DECRYPT_KEY,
     domain: process.env.DOMAIN,
     adminApi: process.env.ADMIN_API,
-    adminEmail: process.env.ADMIN_EMAIL
+    adminEmail: process.env.ADMIN_EMAIL,
+    couponValue: process.env.COUPON_VALUE,
+    referrerCouponValue: process.env.REFERRER_COUPON_VALUE
 }
 
 module.exports = { config }

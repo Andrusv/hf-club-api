@@ -1,11 +1,15 @@
 const MySqlLib = require('../lib/mysql');
-const debug = require('debug')
-const chalk = require('chalk')
+const UsersService = require('./users');
+const CouponsService = require('../services/coupons')
+const { config } = require('../config/index')
 
 class WithdrawalsService{
     constructor(){
-        this.table = 'withdrawals'
+        this.table = 'withdrawals';
         this.mySqlLib = new MySqlLib();
+        this.usersService = new UsersService();
+        this.couponsService = new CouponsService();
+        this.referrerCouponValue = config.referrerCouponValue;
     }
 
     async getWithdrawals(id) {
@@ -28,6 +32,53 @@ class WithdrawalsService{
         const columns = `couponWithdrawal,user_id,balance`
         const values = `${couponWithdrawal},"${user_id}",${balance}`
         return await this.mySqlLib.insert(this.table,columns,values)
+    }
+
+    async verifyReferrerCoupons(user_id,withdrawBalance){
+        try{
+            const { reffers: userReferrals} = await this.usersService.getUserById({ referred_id: user_id })
+
+            const couponsToCheck = withdrawBalance/config.referrerCouponValue
+            
+            const checkCoupons = await this.checkCoupons(userReferrals,couponsToCheck)
+
+            return checkCoupons
+        } catch(err) {
+            return err
+        }
+    }
+
+    async checkCoupons(userReferrals,couponsToCheck) {
+        
+        let couponsChecked = false
+
+        try{
+            const checkReferrersCoupons = async () => {
+                    for (let i = 0; i < userReferrals.length; i++) {
+                        console.log(userReferrals[i])
+                        const [{ totalCoupons }] = await this.couponsService.getNonReferrerAprovedCoupons(userReferrals[i])
+
+                        console.log('Total Coupons: ',totalCoupons)
+
+                        console.log(await this.couponsService.setReferrerCouponAproved(userReferrals[i],couponsToCheck)) 
+
+                        console.log('coupons To Check: ',couponsToCheck)
+
+                        if (totalCoupons >= couponsToCheck) {
+                            console.log('TRUE!!')
+                            return couponsChecked = true
+                        } else {
+                            console.log('FALSE!')
+                            couponsToCheck = couponsToCheck - totalCoupons
+                        }
+                    }
+            }
+
+            await checkReferrersCoupons()
+            return couponsChecked
+        } catch(err) {
+            return err
+        }
     }
 
     async payWithdrawal(withdrawal_id) {

@@ -1,9 +1,10 @@
 const MySqlLib = require('../lib/mysql');
 const UsersService = require('../services/users')
 const CryptoService = require('../services/crypto')
+const { config } = require('../config/index')
 
-const COUPON_VALUE = 0.025
-const REFERRER_COUPON_VALUE = COUPON_VALUE*0.1
+const COUPON_VALUE = config.couponValue
+const REFERRER_COUPON_VALUE = config.referrerCouponValue
 
 class CouponsService {
     constructor(){
@@ -121,6 +122,20 @@ class CouponsService {
         if (chiklin) {
             return chiklin.changedRows || 0
         }
+    }
+
+    async getNonReferrerAprovedCoupons(user_id) {
+        const columns = 'COUNT(coupon_id) AS totalCoupons'
+        const condition = `WHERE user_id="${user_id}" AND aproved=1 AND referrer_aproved=0`
+
+        return await this.mySqlLib.select(columns,this.table,condition)
+    }
+
+    async setReferrerCouponAproved(user_id,limit) {
+        const columns = 'referrer_aproved=1'
+        const condition = `WHERE user_id="${user_id}" AND aproved=1 AND referrer_aproved=0 LIMIT ${limit}`
+
+        return await this.mySqlLib.update(this.table,columns,condition)
     }
 }
 
