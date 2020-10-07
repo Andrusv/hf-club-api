@@ -44,13 +44,13 @@ class CouponsService {
         }
     }
 
-    async addCoupons(couponsEncrypted,ouoLinks) {
-        const columns = 'coupon,link'
+    async addCoupons(couponsEncrypted) {
+        const columns = 'coupon'
         
         const addCoupons = async () => {
             let couponsInserted = []
-            for (let i = 0; i < ouoLinks.length; i++) {
-                const values = `"${couponsEncrypted[i]}","${ouoLinks[i]}"`                     
+            for (let i = 0; i < couponsEncrypted.length; i++) {
+                const values = `"${couponsEncrypted[i]}"`                     
                 try{
                     couponsInserted.push(await this.mySqlLib.insert(this.table,columns,values))
                 } catch(err) {
@@ -63,26 +63,26 @@ class CouponsService {
         return await addCoupons()
     }
 
-    async getUnusedLink(user_id) {
-        const columns = 'link'
+    async getUnusedCoupon(user_id) {
+        const columns = 'coupon'
         const condition = `WHERE user_id="${user_id}" AND used=0`
 
         const unusedLink = await this.mySqlLib.select(columns,this.table,condition)
 
         if (unusedLink[0]) {
-            return unusedLink[0].link || {}
+            return unusedLink[0].coupon || {}
         } else {
             return
         }
     }
 
-    async asignLink(user_id) {
+    async asignCoupon(user_id) {
         const columns = `user_id="${user_id}"`
         const condition = `WHERE user_id is NULL LIMIT 1`
 
-        const linkAsigned = await this.mySqlLib.update(this.table,columns,condition)
+        const couponAsigned = await this.mySqlLib.update(this.table,columns,condition)
 
-        return linkAsigned.affectedRows || {}
+        return couponAsigned.affectedRows || false
     }
 
     async verifyCoupon(user_id,coupon) {

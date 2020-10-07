@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const axios = require('axios')
 
 // CONFIG
 const { config } = require('../config/index')
@@ -7,6 +8,7 @@ const { config } = require('../config/index')
 // SERVICES
 const CryptoService = require('../services/crypto')
 const CouponsService = require('../services/coupons')
+const UsersService = require('../services/users')
 
 // SCHEMAS
 const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
@@ -14,9 +16,16 @@ const { generateSchema, exchangeSchema } = require('../utils/schemas/coupons')
 // MIDDLEWARES
 const validationHandler = require('../utils/middleware/validationHandler');
 const scopesValidationHandler = require('../utils/middleware/scopesValidationHandler');
-const coupons = require('../utils/schemas/coupons');
 const Joi = require('joi');
 const { userIdSchema } = require('../utils/schemas/users');
+
+// CACHE
+const cacheResponse = require('../utils/cache/cacheResponse');
+const {
+  FIVE_MINUTES_IN_SECONDS,
+  SIXTY_MINUTES_IN_SECONDS,
+  TEN_SECONDS
+} = require('../utils/cache/time');
 
 // JWT strategy
 require('../utils/auth/strategies/jwt');
@@ -27,6 +36,7 @@ function couponsApi(app) {
 
     const cryptoService = new CryptoService()
     const couponsService = new CouponsService()
+    const usersService = new UsersService()
 
     router.post('/generate',
     passport.authenticate('jwt', { session: false }),
@@ -51,19 +61,7 @@ function couponsApi(app) {
                 }
             }))
 
-            const decryptedNonExistingCoupons = await Promise.all(nonExistingCoupons.map( async coupon => {
-                return await cryptoService.decrypt(coupon)
-            }))
-
-            const linksWithCoupons = await Promise.all(
-                decryptedNonExistingCoupons.map( async coupon => {
-                    return`${config.domain}/api/coupons/${coupon}`
-                })
-            )
-
-            const ouoLinks = linksWithCoupons
-
-            const insertedCoupons = await couponsService.addCoupons(nonExistingCoupons,ouoLinks)
+            const insertedCoupons = await couponsService.addCoupons(nonExistingCoupons)
 
             return res.status(200).json({"couponsCreated": insertedCoupons.length})
 
@@ -76,26 +74,30 @@ function couponsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:codes']),
     validationHandler(Joi.object({user_id: userIdSchema})),
-    async (req,res) => {
+    async (req,res, next) => {
+
+        cacheResponse(res,TEN_SECONDS)
 
         const { user_id } = req.body
 
         try{
-            let unusedLink = await couponsService.getUnusedLink(user_id)
+            let unusedCoupon = await couponsService.getUnusedCoupon(user_id)
 
-            if ( !unusedLink ) {
-                const asignedLink = await couponsService.asignLink(user_id)
+            if ( !unusedCoupon ) {
+                const asignedCoupon = await couponsService.asignCoupon(user_id)
 
-                if (asignedLink) {
-                    unusedLink = await couponsService.getUnusedLink(user_id)
+                console.log(asignedCoupon)
+
+                if (asignedCoupon) {
+                    res.status(200).json({"CouponAsigned": true})
                 } else {
-                    unusedLink = 0 //Se acabaron los cupones :(
+                    res.status(200).json({"CouponAsigned": false})
                 }
             }
-
-            res.status(200).json({"link": unusedLink})
+            next()
         } catch(err) {
             res.status(401).json({"error": error})
+            next(err)
         }
     })
 
@@ -116,15 +118,56 @@ function couponsApi(app) {
         }
     })
 
-    router.get('/:coupon', function(req, res) {
-        const { coupon } = req.params
-        res.status(200).send(
+    router.post('/:userId',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:codes']),
+    async (req,res, next) => {
+        cacheResponse(res,TEN_SECONDS)
+        const { userId } = req.params
+        const { authorization: jwt } = req.headers
+        
+        try{
+            const { _id: userExist} = await usersService.getUserById({ referred_id: userId })
+
+            if (userExist) {
+                const url = `${config.domain}/api/coupons/coupon/`
+                
+                const response = await axios({
+                    method: 'get',
+                    url: url,
+                    data: {
+                        user_id: userId
+                    }
+                });
+
+                res.status(200).send(response.data.page)
+                //res.redirect(`${config.domain}/api/coupons/coupon/`)
+                next()
+            } else {
+                res.status(401)
+                next(new Error('Usuario inexistente'))
+            }
+        } catch(err) {
+            // ERROR 404
+            res.status(404)
+            next(err)
+        }
+    });
+
+    router.get('/coupon/', async function(req, res) {
+        const { user_id } = req.body 
+        
+        const couponEncrypted = await couponsService.getUnusedCoupon(user_id)
+
+        const coupon = await cryptoService.decrypt(couponEncrypted)
+
+        res.status(200).json({ page:
             `<!DOCTYPE html>
             <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Document</title>
             </head>
             <body>${coupon}</body>
-            </html>`)
+            </html>`})
     });
 }
 
