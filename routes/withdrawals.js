@@ -14,13 +14,6 @@ const { withdrawSchema } = require('../utils/schemas/withdrawals')
 const validationHandler = require('../utils/middleware/validationHandler');
 const scopesValidationHandler = require('../utils/middleware/scopesValidationHandler');
 
-// CACHE
-const cacheResponse = require('../utils/cache/cacheResponse');
-const {
-  FIVE_MINUTES_IN_SECONDS,
-  SIXTY_MINUTES_IN_SECONDS
-} = require('../utils/cache/time');
-
 // JWT strategy
 require('../utils/auth/strategies/jwt');
 
@@ -38,7 +31,6 @@ function withdrawalsApi(app) {
     scopesValidationHandler(['read:withdrawals']),
     validationHandler(Joi.object({user_id:userIdSchema.required()})),
     async function (req,res) {
-        cacheResponse(res, FIVE_MINUTES_IN_SECONDS);
 
         const { user_id: id } = req.body
 
@@ -110,7 +102,6 @@ function withdrawalsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:withdrawals']),
     async (req, res) => {
-        cacheResponse(res, FIVE_MINUTES_IN_SECONDS)
 
         const aprovedWithdrawals = await withdrawalsService.getAprovedWithdrawals()
         

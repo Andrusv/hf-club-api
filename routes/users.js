@@ -13,13 +13,6 @@ const { changeInfoSchema, userIdSchema } = require('../utils/schemas/users')
 const validationHandler = require('../utils/middleware/validationHandler');
 const scopesValidationHandler = require('../utils/middleware/scopesValidationHandler');
 
-// CACHE
-const cacheResponse = require('../utils/cache/cacheResponse');
-const {
-  FIVE_MINUTES_IN_SECONDS,
-  SIXTY_MINUTES_IN_SECONDS
-} = require('../utils/cache/time');
-
 // JWT strategy
 require('../utils/auth/strategies/jwt');
 
@@ -35,7 +28,6 @@ function usersApi(app) {
     scopesValidationHandler(['update:users']),
     validationHandler(changeInfoSchema),
     async (req,res) => {
-        cacheResponse(res, SIXTY_MINUTES_IN_SECONDS);
 
         const { user_id, character_name, password } = req.body
 
@@ -60,7 +52,6 @@ function usersApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:users', 'read:withdrawals', 'read:codes']),
     async (req, res) => {
-        cacheResponse(res, FIVE_MINUTES_IN_SECONDS)
 
         try{
             const clubStats = await adminService.getStats()
@@ -76,7 +67,6 @@ function usersApi(app) {
     scopesValidationHandler(['read:withdrawals']),
     validationHandler(Joi.object({user_id:userIdSchema.required()})),
     async function (req,res) {
-        cacheResponse(res, FIVE_MINUTES_IN_SECONDS);
 
         const { user_id: id } = req.body
 

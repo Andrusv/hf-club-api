@@ -19,14 +19,6 @@ const scopesValidationHandler = require('../utils/middleware/scopesValidationHan
 const Joi = require('joi');
 const { userIdSchema } = require('../utils/schemas/users');
 
-// CACHE
-const cacheResponse = require('../utils/cache/cacheResponse');
-const {
-  FIVE_MINUTES_IN_SECONDS,
-  SIXTY_MINUTES_IN_SECONDS,
-  TEN_SECONDS
-} = require('../utils/cache/time');
-
 // JWT strategy
 require('../utils/auth/strategies/jwt');
 
@@ -76,8 +68,6 @@ function couponsApi(app) {
     validationHandler(Joi.object({user_id: userIdSchema})),
     async (req,res, next) => {
 
-        cacheResponse(res,TEN_SECONDS)
-
         const { user_id } = req.body
 
         try{
@@ -122,7 +112,6 @@ function couponsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:codes']),
     async (req,res, next) => {
-        cacheResponse(res,TEN_SECONDS)
         const { userId } = req.params
         const { authorization: jwt } = req.headers
         
