@@ -68,11 +68,11 @@ class CouponsService {
         const condition = `WHERE user_id="${user_id}" AND used=0`
 
         const unusedLink = await this.mySqlLib.select(columns,this.table,condition)
-
+        
         if (unusedLink[0]) {
             return unusedLink[0].coupon || {}
         } else {
-            return
+            return false
         }
     }
 
@@ -108,7 +108,7 @@ class CouponsService {
     }
 
     async exchangeCoupon(user_id) {
-        const columns = `used=1`
+        const columns = `used=1, used_at=NOW()`
         const condition = `WHERE user_id="${user_id}" AND used=0 LIMIT 1`
 
         const exchange = await this.mySqlLib.update(this.table,columns,condition)

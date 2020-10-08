@@ -47,12 +47,12 @@ function withdrawalsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['create:withdrawals']),
     validationHandler(withdrawSchema),
-    async (req, res) => {
+    async (req, res, next) => {
         const { user_id, withdrawBalance, couponWithdrawal } = req.body
 
         if( !availablePayments.includes(withdrawBalance) ) {
             res.status(402).json({"error": "Error al procesar cantidad de retiro"})
-            return
+            next()
         }
 
         try{
@@ -61,7 +61,7 @@ function withdrawalsApi(app) {
             if (couponWithdrawal){
                 if ( balance < withdrawBalance ) {
                 res.status(401).json({"error": "El usuario no posee suficientes creditos en su balance"})
-                return
+                next()
                 }
 
                 const balanceDebited = await usersService.debitBalance(user_id,withdrawBalance)
@@ -71,12 +71,12 @@ function withdrawalsApi(app) {
                     const withdrawalCreated = await withdrawalsService.createWithdrawal(user_id,withdrawBalance,couponWithdrawal)
 
                     res.json({"balance": balance-withdrawBalance, "withdrawalId": withdrawalCreated})
-                    return
+                    next()
                 }
             } else {
                 if ( referrerBalance < withdrawBalance ) {
                     res.status(401).json({"error": "El usuario no posee suficientes creditos en su balance"})
-                    return
+                    next()
                 }
 
                 const referrerBalanceDebited = await usersService.debitReferrerBalance(user_id,withdrawBalance)
@@ -89,12 +89,12 @@ function withdrawalsApi(app) {
                     }, 500)
 
                     res.json({"referrerBalance": referrerBalance-withdrawBalance, "withdrawalId": withdrawalCreated})
-                    return
+                    next()
                 }
             }
         } catch(err) {
             res.status(401).json({"error": err})
-            return
+            next(err)
         }
     })
 
