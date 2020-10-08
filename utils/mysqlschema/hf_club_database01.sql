@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS withdrawals(
     balance DOUBLE(5,2) NOT NULL,
     received TINYINT(1) DEFAULT 0,
     aproved TINYINT(1) DEFAULT 0,
+    referrer_aproved TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     received_at TIMESTAMP DEFAULT 0,
     aproved_at TIMESTAMP DEFAULT 0
@@ -25,8 +26,6 @@ CREATE TABLE IF NOT EXISTS coupons(
     coupon VARCHAR(64) NOT NULL,
     user_id VARCHAR(24),
     used TINYINT(1) DEFAULT 0,
-    aproved TINYINT(1) DEFAULT 0,
-    referrer_aproved TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     used_at TIMESTAMP DEFAULT 0
 );
