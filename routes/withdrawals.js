@@ -90,6 +90,18 @@ function withdrawalsApi(app) {
 
         const aprovedWithdrawals = await withdrawalsService.getAprovedWithdrawals()
         
+        const getCharacterNames = async (aprovedWithdrawals) => {
+            for (let i = 0; i < aprovedWithdrawals.length; i++) {
+                const { character_name } = await usersService.getUserById({ referred_id: aprovedWithdrawals[i].user_id})
+
+                aprovedWithdrawals[i].characterName = character_name
+            }
+        }
+
+        await getCharacterNames(aprovedWithdrawals)
+
+        console.log(aprovedWithdrawals)
+
         res.json({aprovedWithdrawals})
     })
 
