@@ -28,6 +28,13 @@ class WithdrawalsService{
         return await this.mySqlLib.select(columns,this.table,condition)
     }
 
+    async getPendingWithdrawals() {
+        const columns = 'user_id,balance'
+        const condition = `WHERE aproved=0`
+
+        return await this.mySqlLib.select(columns,this.table,condition)
+    }
+
     async withdrawal(user,withdrawBalance,withdrawalCouponMode) {
         if (withdrawalCouponMode) {
             return await this.withdrawalCouponMode(user,withdrawBalance)
