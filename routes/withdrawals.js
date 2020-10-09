@@ -83,6 +83,13 @@ function withdrawalsApi(app) {
         return
     })
 
+    router.get('/get-user-pending-withdrawal',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:withdrawals', 'update:withdrawals']),
+    async (req,res) => {
+        res.json({todo:"correcto"})
+    })
+
     router.get('/aproved-withdrawals',
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:withdrawals']),
@@ -99,8 +106,6 @@ function withdrawalsApi(app) {
         }
 
         await getCharacterNames(aprovedWithdrawals)
-
-        console.log(aprovedWithdrawals)
 
         res.json({aprovedWithdrawals})
     })
