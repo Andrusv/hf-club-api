@@ -37,9 +37,9 @@ function withdrawalsApi(app) {
         try{
             const withdrawals = await withdrawalsService.getWithdrawals(id)
 
-            res.status(200).json({"withdrawals": withdrawals})
+            return res.status(200).json({"withdrawals": withdrawals})
         } catch(err) {
-            res.status(401).json({"error": err})
+            return res.status(401).json({"error": err})
         }
     })
 
@@ -51,8 +51,7 @@ function withdrawalsApi(app) {
         const { user_id, withdrawBalance, couponWithdrawal } = req.body
 
         if( !availablePayments.includes(withdrawBalance) ) {
-            res.status(402).json({"error": "Error al procesar cantidad de retiro"})
-            return
+            return res.status(402).json({"error": "Error al procesar cantidad de retiro"})
         }
 
         try{
@@ -60,39 +59,36 @@ function withdrawalsApi(app) {
 
             const response = await withdrawalsService.withdrawal(user, withdrawBalance, couponWithdrawal)
 
-            res.status(200).json(response)
-            return
+            return res.status(200).json(response)
 
         } catch(err) {
-            res.status(401).json({"error": err})
-            return(err)
+            return res.status(401).json({"error": err})
         }
     })
 
     router.get('/pending-withdrawals',
     passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['read:withdrawals']),
+    scopesValidationHandler(['admin']),
     async (req, res) => {
         try{
             const pendingWithdrawals = await withdrawalsService.getPendingWithdrawals()
 
-            res.status(200).json({pendingWithdrawals})
+            return res.status(200).json({pendingWithdrawals})
         } catch(err) {
-            res.status(401).json({error: err})
+            return res.status(401).json({error: err})
         }
-        return
     })
 
     router.get('/get-user-pending-withdrawal',
     passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['read:withdrawals', 'update:withdrawals']),
+    scopesValidationHandler(['admin']),
     async (req,res) => {
         res.json({todo:"correcto"})
     })
 
     router.get('/aproved-withdrawals',
     passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['read:withdrawals']),
+    scopesValidationHandler(['admin']),
     async (req, res) => {
 
         const aprovedWithdrawals = await withdrawalsService.getAprovedWithdrawals()
@@ -112,19 +108,19 @@ function withdrawalsApi(app) {
 
     router.post('/pay',
     passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['update:withdrawals']),
+    scopesValidationHandler(['admin']),
     async (req, res) => {
         const { withdrawal_id } = req.body
 
         try{
             if (!withdrawal_id) {
-                res.status(401).json({error: "Withdrawal_id inexistente"})
+                return res.status(401).json({error: "Withdrawal_id inexistente"})
             } else {
                 const payUser = await withdrawalsService.payWithdrawal(withdrawal_id)
-                res.status(200).json({userPaid:payUser.changedRows})
+                return res.status(200).json({userPaid:payUser.changedRows})
             }
         } catch(err) {
-            res.status(401).json({error: err})
+            return res.status(401).json({error: err})
         }
     })
 }

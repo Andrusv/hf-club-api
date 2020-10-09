@@ -236,7 +236,7 @@ function authApi(app) {
         delete newHashedPassword
 
         if (emailSended === email){
-          res.status(200).json({"message": "Password changed succesfully"})
+          return res.status(200).json({"message": "Password changed succesfully"})
         } else {
           res.status(401).json(emailSended)
         }

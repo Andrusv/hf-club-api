@@ -32,7 +32,7 @@ function couponsApi(app) {
 
     router.post('/generate',
     passport.authenticate('jwt', { session: false }),
-    scopesValidationHandler(['update:codes']),
+    scopesValidationHandler(['admin']),
     validationHandler(generateSchema),
     async (req,res) => {
         const { numberOfCoupons } = req.body
@@ -79,15 +79,15 @@ function couponsApi(app) {
                 const asignedCoupon = await couponsService.asignCoupon(user_id)
 
                 if (asignedCoupon) {
-                    res.status(200).json({"CouponAsigned": true})
+                    return res.status(200).json({"CouponAsigned": true})
                     next()
                 } else {
-                    res.status(200).json({"CouponAsigned": false})
+                    return res.status(200).json({"CouponAsigned": false})
                     next()
                 }
             }
 
-            res.status(200).json({"CouponAsigned": true})
+            return res.status(200).json({"CouponAsigned": true})
             next()
         } catch(err) {
             res.status(401).json({"error": err})
@@ -106,7 +106,7 @@ function couponsApi(app) {
         try{
             const couponExchanged = await couponsService.verifyCoupon(user_id,coupon)
 
-            res.status(200).json({"CouponExchanged": couponExchanged})
+           return res.status(200).json({"CouponExchanged": couponExchanged})
         } catch(err) {
             res.status(401).json({"error": err})
         }
@@ -137,20 +137,19 @@ function couponsApi(app) {
                 })
 
                 if ( response ) {
-                    res.status(200).send(response.data.page)
+                    return res.status(200).send(response.data.page)
                     next()
                 } else {
-                    res.status(404).json({'null':null})
+                    return res.status(404).json({'null':null})
                     next()
                 }                
             } else {
-                res.status(401)
+                return res.status(401)
                 next(new Error('Usuario inexistente'))
             }
         } catch(err) {
             // ERROR 404
-            res.status(404)
-            next(err)
+            return res.status(404)
         }
     });
 
@@ -164,7 +163,7 @@ function couponsApi(app) {
 
         const coupon = await cryptoService.decrypt(couponEncrypted)
 
-        res.status(200).json({ 'page':
+        return res.status(200).json({ 'page':
             `<!DOCTYPE html>
             <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Document</title>
