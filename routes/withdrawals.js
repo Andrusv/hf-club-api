@@ -69,6 +69,13 @@ function withdrawalsApi(app) {
         }
     })
 
+    router.get('/pending-withdrawals',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['read:withdrawals']),
+    async (req, res) => {
+        res.json({"todo":"correcto"})
+    })
+
     router.get('/aproved-withdrawals',
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['read:withdrawals']),
