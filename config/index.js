@@ -21,7 +21,8 @@ const config = {
     adminApi: process.env.ADMIN_API,
     adminEmail: process.env.ADMIN_EMAIL,
     couponValue: process.env.COUPON_VALUE,
-    referrerCouponValue: process.env.REFERRER_COUPON_VALUE
+    referrerCouponValue: process.env.REFERRER_COUPON_VALUE,
+    ouoLink: process.env.OUO_LINK
 }
 
 module.exports = { config }

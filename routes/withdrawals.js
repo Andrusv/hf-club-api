@@ -79,10 +79,14 @@ function withdrawalsApi(app) {
         }
     })
 
-    router.get('/get-user-pending-withdrawal',
+    router.get('/get-user-views',
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['admin']),
     async (req,res) => {
+        const { user_id: userId } = req.body
+
+        
+
         res.json({todo:"correcto"})
     })
 

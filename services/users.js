@@ -1,6 +1,9 @@
 const MongoLib = require('../lib/mongo');
 const MySqlLib = require('../lib/mysql');
+const axios = require('axios');
 const bcryptjs = require('bcryptjs');
+
+const { config } = require('../config/index')
 
 class UsersService {
   constructor() {
@@ -52,6 +55,13 @@ class UsersService {
     }
   }
 
+  async getUserLink(user_id) {
+    const columns = 'link'
+    const condition = `WHERE user_id="${user_id}"`
+
+    return await this.mySQL.select(columns,this.debitBalance,condition)
+  }
+
   async changeCharacterName( newCharacterName, id ) {
     return await this.mongoDB.update(this.collection,id, { character_name: newCharacterName })
   }
@@ -68,8 +78,15 @@ class UsersService {
   }
 
   async addUser(id){
-    const columns = 'user_id'
-    return await this.mySQL.insert(this.collection,columns,`'${id}'`)
+    const ouoLink = config.ouoLink
+    const { data: userLink } = await axios({
+      method: 'get',
+      url: `${ouoLink}s=${config.domain}/api/coupons${id}`
+    })
+    
+    const columns = 'user_id,link'
+    const values = `'${id}','${userLink}'`
+    return await this.mySQL.insert(this.collection,columns,values)
   }
 
   async debitBalance(id,withdrawBalance){

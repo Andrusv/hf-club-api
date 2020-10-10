@@ -69,11 +69,11 @@ function authApi(app) {
             expiresIn: '1d'
           });
 
-          const { balance, referrer_balance } = await usersService.getUserByIdMySQL(id)
+          const { link, balance, referrer_balance } = await usersService.getUserByIdMySQL(id)
 
           const withdrawals = await withdrawalsService.getWithdrawals(id)
 
-          return res.status(200).json({ token, user: { id, character_name, email, balance, referrer_balance }, withdrawals: withdrawals || [] });
+          return res.status(200).json({ token, user: { id, character_name, email, balance, referrer_balance, link }, withdrawals: withdrawals || [] });
         });
       } catch (error) {
         next(error);
@@ -174,6 +174,7 @@ function authApi(app) {
       
             const balance = 0.0000
             const referrer_balance = 0.0000
+            const link = await usersService.getUserLink(id)
 
             const payload = {
               sub: id,
@@ -186,10 +187,10 @@ function authApi(app) {
               expiresIn: '1d'
             });
       
-            return res.status(200).json({ token, user: { id, character_name, email, balance, referrer_balance}, withdrawals: [] });
+            return res.status(200).json({ token, user: { id, character_name, email, balance, referrer_balance, link}, withdrawals: [] });
           }
         } else {
-          res.status(404).json({
+          return res.status(404).json({
               message: 'Usuario referido no existe'
           })
         }
@@ -209,14 +210,14 @@ function authApi(app) {
 
         if (!apiKey) {
           next(boom.unauthorized());
-          res.status(401).json({"message": "unauthorized!"})
+          return res.status(401).json({"message": "unauthorized!"})
         }
 
         const { email, _id: id, character_name } = await usersService.getUserByEmail(user)
 
         if (!email) {
           next(boom.badRequest('Esta direccion de email no se encuentra registrada'))
-          res.status(401).json({"error": "Direccion de email no registrada"})
+          return res.status(401).json({"error": "Direccion de email no registrada"})
         }
 
         // CREATE NEW PASSWORD
@@ -228,7 +229,7 @@ function authApi(app) {
         if (!passwordChanged) {
           next(boom.conflict('Error changing user password'))
 
-          res.status(401).json({ "error": "Error changing user password" })
+          return res.status(401).json({ "error": "Error changing user password" })
         }
 
         const emailSended = await mailService.sendNewPassword(character_name,email,newHashedPassword)
@@ -238,7 +239,7 @@ function authApi(app) {
         if (emailSended === email){
           return res.status(200).json({"message": "Password changed succesfully"})
         } else {
-          res.status(401).json(emailSended)
+          return res.status(401).json(emailSended)
         }
 
       } catch(err) {
