@@ -129,8 +129,22 @@ class WithdrawalsService{
     }
 
     async denyWithdrawal(withdrawal_id) {
-        const columns = `aproved=2`
+        const columns = `aproved=2, aproved_at=NOW()`
         const condition = `WHERE withdrawal_id="${withdrawal_id}"`
+
+        return await this.mySqlLib.update(this.table,columns,condition)
+    }
+
+    async aproveWithdrawals(user_id) {
+        const columns = `aproved=1, aproved_at=NOW()`
+        const condition = `WHERE user_id="${user_id}" AND couponWithdrawal=1 AND aproved=0`
+
+        return await this.mySqlLib.update(this.table,columns,condition)
+    }
+
+    async denyWithdrawals(user_id) {
+        const columns = `aproved=2, aproved_at=NOW()`
+        const condition = `WHERE user_id="${user_id}" AND couponWithdrawal=1 AND aproved=0`
 
         return await this.mySqlLib.update(this.table,columns,condition)
     }

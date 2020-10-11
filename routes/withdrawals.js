@@ -102,7 +102,21 @@ function withdrawalsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['admin']),
     async (req,res) => {
-        res.json({todo:"correcto"})
+        const { user_id, aproveWithdrawals } = req.body
+
+        if (!user_id) {
+            return res.status(401).json({error: "Withdrawal_id inexistente"})
+        }
+
+        if (aproveWithdrawals) {
+            const { changedRows: aproved } = await withdrawalsService.aproveWithdrawals(user_id)
+
+            return res.status(200).json({aproved: aproved})
+        } else {
+            const { changedRows: rejected } = await withdrawalsService.denyWithdrawals(user_id)
+
+            return res.status(200).json({rejected:rejected})
+        }
     })
 
     router.get('/aproved-withdrawals',
