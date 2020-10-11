@@ -98,6 +98,13 @@ function withdrawalsApi(app) {
 
     })
 
+    router.post('/aprove-withdrawals',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['admin']),
+    async (req,res) => {
+        res.json({todo:"correcto"})
+    })
+
     router.get('/aproved-withdrawals',
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['admin']),
