@@ -1,7 +1,8 @@
 const MySqlLib = require('../lib/mysql');
 const UsersService = require('../services/users')
 const CryptoService = require('../services/crypto')
-const { config } = require('../config/index')
+const moment = require('moment')
+const { config } = require('../config/index');
 
 const COUPON_VALUE = config.couponValue
 const REFERRER_COUPON_VALUE = config.referrerCouponValue
@@ -105,6 +106,35 @@ class CouponsService {
         } catch(err) {
             return err
         }
+    }
+
+    async totalCouponsUsed(user_id) {
+        const thisMonthName = moment().format('MMMM')
+        const lastMonthName = moment().subtract(1,'months').format('MMMM')
+        const monthBeforeLastMonthName = moment().subtract(2,'months').format('MMMM')
+
+        const currentDate = moment().format('YYYY-MM-DD')
+        const lastMonthDate = moment().subtract(1,'months').format('YYYY-MM-DD')
+        const monthBeforeLastMonthDate = moment().subtract(2,'months').format('YYYY-MM-DD')
+
+        const [{ couponsUsed: thisMonth }] = await this.couponsUsed(user_id,currentDate)
+        const [{ couponsUsed: lastMonth }] = await this.couponsUsed(user_id,lastMonthDate)
+        const [{ couponsUsed: monthBeforeLastMonth }] = await this.couponsUsed(user_id,monthBeforeLastMonthDate)
+        
+        const couponsUsed = {
+            [thisMonthName]: thisMonth,
+            [lastMonthName]: lastMonth,
+            [monthBeforeLastMonthName]: monthBeforeLastMonth
+        }
+
+        return couponsUsed
+    }
+
+    async couponsUsed(user_id,date) {
+        const columns = 'COUNT(coupon_id) AS couponsUsed'
+        const condition = `WHERE user_id="${user_id}" AND MONTH(used_at)=MONTH("${date}") AND YEAR(used_at)=YEAR("${date}")`
+
+        return await this.mySqlLib.select(columns,this.table,condition)
     }
 
     async exchangeCoupon(user_id) {

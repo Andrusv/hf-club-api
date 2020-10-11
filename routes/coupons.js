@@ -72,8 +72,6 @@ function couponsApi(app) {
 
         try{
             let unusedCoupon = await couponsService.getUnusedCoupon(user_id)
-
-            console.log(await cryptoService.decrypt(unusedCoupon))
             
             if ( !unusedCoupon ) {
                 const asignedCoupon = await couponsService.asignCoupon(user_id)
@@ -87,6 +85,8 @@ function couponsApi(app) {
                 }
             }
 
+            console.log(await cryptoService.decrypt(unusedCoupon))
+            
             return res.status(200).json({"CouponAsigned": true})
             next()
         } catch(err) {

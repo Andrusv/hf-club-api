@@ -5,6 +5,7 @@ const Joi = require('joi');
 // SERVICES
 const WithdrawalsService = require('../services/withdrawals');
 const UsersService = require('../services/users')
+const CouponsService = require('../services/coupons')
 
 // SCHEMAS
 const { userIdSchema } = require('../utils/schemas/users')
@@ -22,6 +23,7 @@ function withdrawalsApi(app) {
     app.use('/api/withdrawals', router);
 
     const withdrawalsService = new WithdrawalsService()
+    const couponsService = new CouponsService()
     const usersService = new UsersService()
 
     const availablePayments = [1,10,20,50]
@@ -83,11 +85,17 @@ function withdrawalsApi(app) {
     passport.authenticate('jwt', { session: false }),
     scopesValidationHandler(['admin']),
     async (req,res) => {
-        const { user_id: userId } = req.body
+        const { user_id } = req.body
 
-        
+        try{
+            const userViews = await couponsService.totalCouponsUsed(user_id)
+            const { link: userLink } = await usersService.getUserByIdMySQL(user_id)
 
-        res.json({todo:"correcto"})
+            return res.status(200).json({userLink,userViews})
+        } catch(err) {
+            return res.status(404).json({error: err})
+        }
+
     })
 
     router.get('/aproved-withdrawals',
