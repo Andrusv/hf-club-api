@@ -120,6 +120,13 @@ class UsersService {
     const condition = `WHERE user_id="${user_id}" LIMIT 1`
     return await this.mySQL.update(this.collection,columns,condition)
   }
+
+  async banUser(user_id) {
+    const columns = 'banned=1'
+    const condition = `WHERE user_id="${user_id}" LIMIT 1`
+
+    return await this.mySQL.update(this.collection,columns,condition)
+  }
 }
 
 module.exports = UsersService;

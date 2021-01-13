@@ -91,28 +91,28 @@ function authApi(app) {
     passport.authenticate('basic', function(error, user) {
       try {
         if (error || !user) {
-          next(boom.unauthorized());
+          return res.status(500).json({error})
         }
 
         req.login(user, { session: false }, async function(error) {
           if (error) {
-            next(error);
+            return res.status(500).json({error})
           }
 
           const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
 
           if (!apiKey) {
-            next(boom.unauthorized());
+            return res.status(500).json({error: "Error, unauthorized"})
           }
 
           if (apiKey.token != config.adminApi) {
-            next(boom.unauthorized());
+            return res.status(500).json({error: "Error, unauthorized"})
           }
 
           const { _id: id, character_name, email } = user;
 
           if (email != config.adminEmail) {
-            next(boom.unauthorized());
+            return res.status(500).json({error: "Error, unauthorized"})
           }
 
           const payload = {
@@ -131,7 +131,7 @@ function authApi(app) {
           return res.status(200).json({ token, stats: clubStats});
         });
       } catch (error) {
-        next(error);
+        return res.status(500).json({error})
       }
     })(req, res, next);
   });

@@ -54,11 +54,11 @@ function usersApi(app) {
     async (req, res) => {
 
         try{
-            const clubStats = await adminService.getStats()
+            const { totalCoupons, totalWithdrawals, totalCredits } = await adminService.getStats()
 
-            return res.status(200).json({stats: clubStats})
+            return res.status(200).json({ totalCoupons, totalWithdrawals, totalCredits })
         } catch(err) {
-            return res.status(401).json({err: err})
+            return res.status(401).json({error: err})
         }
     })  
 
@@ -84,10 +84,14 @@ function usersApi(app) {
     scopesValidationHandler(['admin']),
     validationHandler(Joi.object({"user_id":userIdSchema}).required()),
     async (req, res) => {
+        const { user_id } = req.body
+
         try{
-            return res.status(200).json({tofo: "correct"})
+            const userBanned = await usersService.banUser(user_id)
+
+            return res.status(200).json({userBanned: userBanned.changedRows})
         } catch(err) {
-            return res.status(401).json({err: err})
+            return res.status(401).json({error: err})
         }
     })
 }
